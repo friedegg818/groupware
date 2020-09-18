@@ -1,0 +1,167 @@
+@charset "UTF-8";
+
+.selectGroup {
+	height: 39px;
+	position: relative;
+	padding-top: 13px;
+/* 	background: orange; */
+	margin-left: 20px;
+}
+
+button:hover {
+	cursor: pointer;
+}
+
+.selectGroup .selectBox {
+	margin-top: 9px;	
+	width: 110px;
+	height: 25px;
+	position: absolute;
+	top: 0;
+	z-index: 1;
+	border: none;
+	background: transparent;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	cursor: pointer;
+	padding-left: 5px;
+	font-size: 15px;
+}
+
+.selectGroup:before {
+	content: '';
+	position: absolute;
+	width: 80px;
+	height: 25px;
+	z-index: 0;
+	margin-top: -5px;
+	-webkit-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-moz-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	background-color: white;
+	-webkit-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	-moz-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	border: solid 1px #cbc9c9;
+}
+
+.selectGroup:after {
+	content: '';
+	position: absolute;
+	right: 170px;
+	width: 30px;
+	height: 26px;
+	background-color: #6E3C89;
+	background-image: url(https://raw.githubusercontent.com/solodev/styling-select-boxes/master/select1.png);
+	background-position: center;
+	background-repeat: no-repeat;
+	z-index: 0;
+	margin-top: -5px;
+	-webkit-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-moz-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-webkit-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	-moz-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	border: solid 1px #cbc9c9;
+}
+
+.board-body table th{
+	color: black;
+	background: white;
+	border-bottom: 1px solid #cccccc;
+}
+
+*:focus { outline:none; }
+
+
+.deptdata a:hover {
+	color: #EDA900;
+	background: #632A7E;
+	border: 1px solid #632A7E;
+	text-decoration: none;
+}
+
+.deptdata button:hover {
+	color: #EDA900;
+	border: 1px solid #632A7E;
+	background: #632A7E;
+	text-decoration: none;
+}
+
+#dbtn:hover {
+	border: 2px solid #632A7E;
+	color: #632A7E;
+	font-weight: bold;
+	font-size: 17.5px;
+	background: transparent;
+}
+
+#dbtn {
+	background: transparent;
+	width: 62%; 
+	height: 47px; 
+	border: 1px solid #cccccc; 
+    margin-top: 7px;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    border-radius: 5px;
+    text-align: left; 
+    line-height: 47px;
+    font-size: 15.5px;
+}
+
+
+#backbtn {
+	background: white;
+	margin-bottom: 15px;
+	height: 50px;
+	width: 70px;
+	color: #9565A4; 
+	font-size: 30px;
+	font-weight: bold;
+	border: none;
+	border-radius: 10px;
+}
+
+a:hover {
+   color: #EDA900;
+}
+
+a:link {
+	text-decoration: none;
+}
+
+a:visited {
+	text-decoration: none;
+}
+
+a:active {
+	text-decoration: none;
+}
+
+#list-paging {
+   width: 1000px;
+   text-align: center;
+   padding-top: 20px;
+   padding-right: 100px;
+   font-size: 15px;
+   cursor: pointer;
+}
+
+.curBox {
+   border-bottom: 1px solid gray;
+   margin-right: 15px;
+   cursor: pointer;
+   font-weight: bold;
+   color: #632A7E;
+}
+
+.numBox {
+   margin-right: 15px;
+   background: none;
+   border: none;
+}
+
+

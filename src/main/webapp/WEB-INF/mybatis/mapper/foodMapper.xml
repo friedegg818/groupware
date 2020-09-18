@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="food">
+	<insert id="insertFood" parameterType="com.of.food.Food">
+		INSERT INTO food(foodNum, writer, content, created, subject)
+			VALUES(seq_food.NEXTVAL, #{writer}, #{content}, #{created}, #{subject})
+	</insert>
+	
+	<select id="listFood" parameterType="map" resultType="com.of.food.Food">
+		SELECT foodNum, writer, name, content, created, subject 
+		FROM food f 
+		JOIN employee e ON writer=empNo 
+		WHERE 
+			( 
+			TO_DATE(created) >= TO_DATE(#{startDay}, 'YYYYMMDD') 
+			AND TO_DATE(created) &lt;= TO_DATE(#{endDay}, 'YYYYMMDD')
+			OR TO_DATE(created) &lt;= TO_DATE(#{endDay}, 'YYYYMMDD')
+			)
+		ORDER BY created ASC, foodNum DESC
+	</select>
+	
+	<select id="listDay" parameterType="map" resultType="com.of.food.Food">
+		SELECT foodNum, writer, name, content, created, subject 
+		FROM food f 
+		JOIN employee e ON writer=empNo 
+		WHERE TO_DATE(created) = TO_DATE(#{day},'YYYYMMDD')
+		ORDER BY foodNum DESC
+	</select>
+	
+	<select id="readFood" parameterType="Integer" resultType="com.of.food.Food">
+		SELECT foodNum, writer, name, content, created, subject 
+		FROM food
+		JOIN employee e ON writer=empNo 
+		WHERE foodNum=#{foodNum}
+	</select>
+	
+	<update id="updateSchedule" parameterType="com.of.food.Food">
+		UPDATE food SET
+			subject=#{subject}, created=#{created}, content=#{content} 
+		WHERE foodNum=#{foodNum}	
+	</update>
+	
+	<delete id="deleteFood" parameterType="map">
+		DELETE FROM food WHERE foodNum=#{foodNum}	
+	</delete>
+
+</mapper>

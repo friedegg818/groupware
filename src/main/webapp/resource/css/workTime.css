@@ -1,0 +1,287 @@
+@charset "UTF-8";
+
+
+.workingBtn {
+	border: none;
+	width: 110px; 
+	height: 50px; 
+/* 	background: white; */
+	background: none;
+	color: white;
+	font-size: 25px; 
+	border: none; 
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+.workingBtn span {
+	font-size: 18px;
+}
+
+.timeINOUT {
+	margin-top: 15px;
+	margin-left: 10px;
+	background: #9565A4; 
+	height: 400px;
+}
+
+.timeINOUT p {
+	font-size: 70px;
+	text-align: center;
+	padding-top: 18px;
+	color: white;
+}
+
+.timeBtn {
+	text-align: center;
+}
+
+.timeBtn span {
+	color: white;
+	font-size: 23px;
+	font-weight: bold;
+}
+
+.timeWord p {
+	font-size: 14px;
+	margin-top: -20px;
+}
+
+.board-statMemo {
+	margin-top: 20px;
+}
+
+.stateTable {
+	width: 100%;
+	margin-top: 5px;
+	background: white;
+}
+
+.stateTable td {
+	text-align: center;
+	height: 45px;
+	border-bottom: 1px solid #cccccc;
+	color: #424242;
+}
+
+.stFtd {
+	border-top: 1px solid #cccccc;
+	background: #E6E6E6;
+	font-size: 20px;
+	font-weight: bolder;
+}
+
+.stStd {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.currTime {
+	font-size: 30px;
+	font-weight: bold;
+	border-top: 1px solid #cccccc; 
+	border-bottom: 1px solid #cccccc; 
+	padding-top: 10px;
+	padding-bottom: 10px;
+	color: #424242;
+	padding-left: 8px;
+}
+
+.board-detailed {
+	margin-top: 35px;
+}
+
+.monthTable {
+/* 	background: fuchsia; */
+	width: 100%;
+	margin-top: 15px;
+}
+
+.monthTable td {
+	border-bottom: 1px solid #cccccc;
+	height: 40px;
+	text-align: center;
+	font-size: 15px;
+}
+
+.mtFtd {
+	border-top: 1px solid #cccccc;
+	background: #9565A4; 
+	color: white;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.workOther {
+	padding-bottom: 4px;
+	border: none;
+	border-bottom: 1px solid #cccccc;
+}
+
+.workOther:focus{
+		border-bottom: 1px solid #9565A4;;
+} 
+
+.detailedMonth {
+	margin-top: 15px;
+	padding-right: 10px;
+	font-size: 15px;
+	text-align: right;
+}
+
+.vacaiontTr{
+	background: #9565A4;
+	line-height: 50px;
+}
+.vacaiontTd{
+	height: 100px;
+}
+
+.dtitle {
+	float: left;
+}
+
+.restBtn{
+	margin-left: 845px;
+	float: left;
+	border-top: 1px solid #cccccc;
+	background: #9565A4; 
+	color: white;
+	font-weight: bold;
+	font-size: 18px;
+	height: 30px;
+	border: none;
+	padding: 3px 7px;
+	margin-bottom: 5px;
+	border-radius: 4px;
+}
+
+.restSpan{
+	font-size: 15px;
+	line-height: 22px;
+}
+
+.ui-dialog-title {
+	font-size: 19px;
+	color: #484848;
+	font-family: NanumSquareRound;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	border-bottom: 1px solid #cccccc;
+}
+
+.nowDate {
+	padding-left: 15px;
+}
+
+.nowDate p {
+	font-size: 20px;
+	color: #484848;
+	font-family: NanumSquareRound;
+	font-weight: bold;
+}
+
+.profile2 {
+	margin-top: 15px;
+}
+
+.profile2 p {
+	padding-left: 20px;
+}
+
+.profile2 .span1 {
+	font-size: 20px;
+	color: #484848;
+	font-family: NanumSquareRound;
+	position: absolute;
+	padding-left: 10px;
+	line-height: 40px;
+}
+
+.profile2 .span2 {
+	font-size: 20px;
+	color: #484848;
+	font-family: NanumSquareRound;
+	position: absolute;
+	padding-left: 10px;
+	line-height: 85px;
+}
+
+.photo {
+	width: 60px;
+	height: 60px;
+	border-radius: 30px;
+	position: relative;
+}
+
+.checkBtn {
+	margin-top: 20px;
+	text-align: center;
+	margin-right: 25px;
+}
+
+.sendBtn {
+	width: 50px;
+	height: 30px;
+	font-family: NanumSquareRound;
+	font-size: 14px;
+	font-weight: bold;
+	background: #eeeeee;
+	border: 1px solid #cccccc;
+	border-radius: 4px;
+	color: #484848;
+}
+
+.sendBtns {
+	width: 50px;
+	height: 30px;
+	font-family: NanumSquareRound;
+	font-size: 14px;
+	font-weight: bold;
+	background: #eeeeee;
+	border: 1px solid #cccccc;
+	border-radius: 4px;
+	color: #484848;
+	margin-left: 5px;
+}
+
+.otherBtn {
+	background: none;
+	border: none;
+	color: #6E6E6E;
+	font-size: 13px;
+}
+
+.vacaDate {
+	padding-left: 10px;
+}
+
+.vacaDate input {
+	width: 150px;
+	height: 25px;
+	padding-left: 5px;
+}
+
+.vacationBtn {
+	width: 50px;
+	height: 30px;
+	font-family: NanumSquareRound;
+	font-size: 14px;
+	font-weight: bold;
+	background: #eeeeee;
+	border: 1px solid #cccccc;
+	border-radius: 4px;
+	color: #484848;
+	margin-left: 5px;
+}
+
+.info {
+	font-family: NanumSquareRound;
+	font-size: 16px;
+	color: #484848;
+	padding-bottom: 5px;
+}
+
+
+

@@ -1,0 +1,252 @@
+@charset "UTF-8";
+
+/* list */
+.body-title {
+	font-size: 15px;
+}
+
+#list-container {
+	margin-left: 200px;
+	width: 1500px;
+	align-content: center;
+	margin: 30px 0 0 200px;
+}
+
+#listBtnBox {
+	float: left;
+	width: 20%;
+	/* background: aqua; */
+}
+
+#listBtnBox-left {
+	width: 275px;
+	height: 50px;
+	margin-top: 20px;
+	margin-left: 15px;
+}
+
+#new-button1 {
+	width: 180px;
+	height: 50px;
+	background: #9565A4;
+	color: white;
+	font-size: 25px;
+	border: none;
+	border-radius: 10px;
+	outline: 0;
+}
+
+#new-button2 {
+	width: 50px;
+	height: 50px;
+	background: #9565A4;
+	color: white;
+	font-size: 25px;
+	border: none;
+	border-radius: 10px;
+	outline: 0;
+}
+
+.selectGroup-list {
+	height: 39px;
+	position: relative;
+	padding-top: 13px;
+	margin-left: 20px;
+	/* background: orange; */
+}
+
+.selectGroup-list .selectBox-list {
+	margin-top: 9px;	
+	width: 110px;
+	height: 25px;
+	position: absolute;
+	top: 0;
+	z-index: 1;
+	border: none;
+	background: transparent;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	cursor: pointer;
+	padding-left: 5px;
+	font-size: 15px;
+}
+
+.selectGroup-list:before {
+	content: '';
+	position: absolute;
+	width: 110px;
+	height: 25px;
+	z-index: 0;
+	margin-top: -5px;
+	margin-left: 0px;
+	-webkit-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-moz-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	background-color: white;
+	-webkit-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	-moz-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	border: solid 1px #cbc9c9;
+}
+
+.selectGroup-list:after {
+	content: '';
+	position: absolute;
+	right: 165px;
+	width: 30px;
+	height: 26px;
+	background-color: #6E3C89;
+	background-image: url(https://raw.githubusercontent.com/solodev/styling-select-boxes/master/select1.png);
+	background-position: center;
+	background-repeat: no-repeat;
+	z-index: 0;
+	margin-top: -5px;
+	-webkit-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-moz-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-webkit-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	-moz-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	border: solid 1px #cbc9c9;
+}
+
+#searchBox {
+	margin-left: 20px;
+	margin-top: -10px;
+}
+
+#searchBox p {
+	font-size: 20px;
+	border: 1px solid #cccccc;
+	width: 220px;
+}
+
+#searchBox p input {
+	width: 170px;
+	height: 35px;
+	border: none;
+	font-size: 15px;
+	padding-left: 10px;
+	outline: 0;
+	autocomplete: off;
+}
+
+#searchBox button {
+	border: none;
+	background: transparent;
+	outline: 0;
+	width: 30px;
+	height: 30px;
+	margin-top: 5px;
+}
+
+#container-list {
+	width: 1200px;
+	margin: -125px 0 0 300px;
+}
+
+#list-header table {
+	width: 1100px;
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin: 0px auto;
+	margin-top: 20px;
+	font-size: 15px;
+}
+
+#list-menu {
+	margin: 0px auto;
+}
+
+#list-title {
+	height: 50px;
+	text-align: center;
+	background: #9565A4;;
+	color: white;
+}
+
+#empNo-list {
+	width: 100px;
+}
+
+#name-list {
+	width: 150px;
+}
+
+#tel-list {
+	width: 150px;
+}
+
+#email-list {
+	width: 250px;
+}
+
+#enterDate-list {
+	width: 150px;
+}
+
+#dType-list {
+	width: 125px;
+}
+
+#pType-list {
+	width: 125px;
+}
+
+#search-list {
+	width: 100px;
+}
+
+#list-content {
+	height: 50px;
+	text-align: center;
+	border-bottom: 1px solid #cccccc;
+}
+
+#list-content:hover {
+	background: #F2F2F2;
+	font-weight: bold;
+}
+
+#listView>a>i:hover {
+	color: #EDA900;
+}
+
+#list-paging {
+	width: 1000px;
+	text-align: center;
+	padding-top: 20px;
+	font-size: 15px;
+	cursor: pointer;
+}
+
+.curBox {
+	border-bottom: 1px solid gray;
+	margin-right: 15px;
+	cursor: pointer;
+	font-weight: bold;
+	color: #632A7E;
+}
+
+.numBox {
+	margin-right: 15px;
+}
+
+.numBox:hover {
+	color: #EDA900;
+}
+
+.listBtn {
+	width: 70px;
+	color: white;
+	background: #632A7E;
+	border: none;
+	padding: 10px 5px;
+	height: 37px;
+}
+
+.listBtn:hover { 
+	color:white; 
+	background-color: #9565A4;
+}

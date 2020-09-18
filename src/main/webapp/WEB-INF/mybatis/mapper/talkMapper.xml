@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="talk">
+	<insert id="insertTalk" parameterType="com.of.talk.Talk">
+		INSERT INTO talk(talkNum, writer, content, created,imageFilename)
+			VALUES(seq_talk.NEXTVAL, #{writer}, #{content}, SYSDATE, #{imageFilename})
+	</insert>
+	
+	<select id="dataCount" resultType="Integer">
+		SELECT NVL(COUNT(*), 0) FROM talk
+	</select>
+	
+	<select id="listTalk" parameterType="map" resultType="com.of.talk.Talk">
+		SELECT talkNum, writer, name, content, created, p.imageFilename,dType, pType
+		FROM talk t 
+		JOIN employee e ON writer=e.empNo
+		JOIN profile p ON e.empNo=p.empNo
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		ORDER BY talkNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY	
+	</select>
+	
+	<delete id="deleteTalk" parameterType="map">
+		DELETE talk WHERE talkNum=#{talkNum}	
+	</delete>
+
+</mapper>

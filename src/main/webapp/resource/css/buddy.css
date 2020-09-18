@@ -1,0 +1,59 @@
+@charset "UTF-8";
+
+
+*:focus { outline:none; }
+
+a:visited { color: #424242; text-decoration: none; }
+a:link { color: #424242; text-decoration: none; }
+
+.resultList {
+}
+
+.emplistTable {
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+.empListTable td {
+	font-size: 15px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	border-bottom: 1px solid #cccccc;
+	color: #424242;
+	text-align: center;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+#list-paging {
+   width: 1000px;
+   text-align: center;
+   padding-top: 20px;
+   font-size: 15px;
+   cursor: pointer;
+}
+
+.curBox {
+   border-bottom: 1px solid gray;
+   margin-right: 15px;
+   cursor: pointer;
+   font-weight: bold;
+   color: #632A7E;
+}
+
+.numBox {
+   margin-right: 15px;
+}
+
+.ui-widget-header {
+	background: none;
+	border: none;
+	font-size: 20px;
+	border-bottom: 1px solid #cccccc;
+}
+
+.ui-button .ui-icon {
+	border: none;
+}
+
+

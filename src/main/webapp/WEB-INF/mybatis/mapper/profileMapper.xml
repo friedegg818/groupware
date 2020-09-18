@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="profile">
+	
+	<select id="readProfile" parameterType="String" resultType="com.of.profile.Profile">
+		SELECT p.empNo, name, dType, pType,  intro, imageFilename, pwd, tel, email, TO_CHAR(birth, 'YYYY-MM-DD')birth, TO_CHAR(enterDate, 'YYYY-MM-DD')enterDate
+		FROM profile p 
+		JOIN employee e ON p.empNo = e.empNo
+		JOIN career c ON p.empNo = c.empNo
+        JOIN history h ON p.empNo = h.empNo 
+        JOIN dept d ON h.dCode = d.dCode
+        JOIN position ps ON h.pCode = ps.pCode
+		WHERE p.empNo = #{empNo}
+	</select>
+
+	<update id="updateProfile1" parameterType="com.of.profile.Profile">
+		UPDATE profile SET intro=#{intro}, imageFilename=#{imageFilename}
+		WHERE empNo=#{empNo}
+	</update>
+	
+	<update id="updateProfile2" parameterType="com.of.profile.Profile">
+		UPDATE employee SET pwd=#{pwd}
+		WHERE empNo=#{empNo}
+	</update>
+	
+	<select id="mainProfile" parameterType="String" resultType="com.of.profile.Profile">
+		SELECT p.empNo, name, dType, pType, intro, imageFilename, pwd, tel, email, TO_CHAR(birth, 'YYYY-MM-DD')birth, TO_CHAR(enterDate, 'YYYY-MM-DD')enterDate
+		FROM profile p 
+		JOIN employee e ON p.empNo = e.empNo
+		JOIN career c ON p.empNo = c.empNo
+		JOIN history h ON e.empNo = h.empNo
+		JOIN Dept d ON h.dCode = d.dCode
+		JOIN Right r ON e.rCode = r.rCode
+		JOIN Position pp ON h.pCode = pp.pCode
+		WHERE p.empNo = #{empNo}
+	</select>
+
+</mapper>

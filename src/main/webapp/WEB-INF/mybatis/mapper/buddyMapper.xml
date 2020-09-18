@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="buddy">
+	<select id="seq" resultType="Integer">
+		SELECT seq_buddy.NEXTVAL FROM dual
+	</select>
+	
+	<sql id="where-list">		
+		<if test="condition=='title' ">
+			INSTR(title, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='content' ">
+			INSTR(content, #{keyword}) &gt; 0 
+		</if>
+		<if test="condition=='name' ">
+			name=#{keyword}
+		</if>			
+	</sql>
+	
+	<!-- 메일 전송 -->
+	<insert id="sendBuddy1" parameterType="com.of.buddy.Buddy">
+		INSERT INTO buddy (buddyNum, title, content) VALUES (#{buddyNum}, #{title}, #{content})
+	</insert>
+	
+	<insert id="sendBuddy2" parameterType="com.of.buddy.Buddy">
+		INSERT INTO rBuddy (rbuddyNum, sender, buddyNum, buddyState, buddyCheck, rDate) 
+			   VALUES (seq_rbuddy.NEXTVAL, #{sender}, #{buddyNum}, 0, 0, SYSDATE)
+	</insert>
+	
+	<insert id="sendBuddy3" parameterType="com.of.buddy.Buddy">
+		INSERT INTO sBuddy (sbuddyNum, receiver, buddyNum, sDate) 
+			   VALUES (seq_sbuddy.NEXTVAL, #{receiver}, #{buddyNum}, SYSDATE)
+	</insert>
+	
+	<!-- 받는 사람 리스트 -->
+	<select id="listReceiver"  resultType="com.of.buddy.Buddy" parameterType="map">
+		SELECT e.empNo, name, email, d.dType, p.pType
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+        WHERE INSTR(${col}, #{keyword})=1 
+		ORDER BY d.dType, name
+	</select>
+	
+	<!-- 첨부 파일 -->
+	<insert id="insertFile" parameterType="com.of.buddy.Buddy">
+		INSERT INTO buddyFile (fileNum, buddyNum, originalFileName, saveFileName, fileSize) VALUES
+				(seq_buddyFile.NEXTVAL, #{buddyNum}, #{originalFilename}, #{saveFilename}, #{fileSize})
+	</insert>	
+	
+	<!-- 받은 편지함 개수  -->
+	<select id="rDataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM buddy b
+        JOIN rbuddy r ON b.buddyNum = r.buddyNum
+        JOIN sbuddy s ON b.buddyNum = s.buddyNum
+		<where>
+			receiver = #{receiver}
+			<if test="keyword != null and keyword != ''">
+				AND <include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<!-- 보낸 편지함 개수 -->
+	<select id="sDataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM buddy b
+        JOIN rbuddy r ON b.buddyNum = r.buddyNum
+        JOIN sbuddy s ON b.buddyNum = s.buddyNum
+		<where>
+			sender = #{sender}
+			<if test="keyword != null and keyword != ''">
+				AND <include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<!-- 중요 보관함 개수  -->
+	<select id="keepCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM buddy b
+        JOIN rbuddy r ON b.buddyNum = r.buddyNum
+        JOIN sbuddy s ON b.buddyNum = s.buddyNum
+		<where>
+			receiver = #{receiver} AND buddyState = 1
+			<if test="keyword != null and keyword != ''">
+				AND <include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<!-- 읽지 않은 메일 개수 -->
+	<select id="unreadCount" parameterType="String" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM buddy b
+		JOIN rbuddy r ON b.buddyNum = r.buddyNum
+		JOIN sbuddy s ON b.buddyNum = s.buddyNum
+		WHERE receiver = #{receiver} AND buddyCheck = 0
+	</select>
+	
+	<!-- 안 읽은 메일 삭제  // 구현 안 함 -->
+	<delete id="deleteUnreadBuddy" parameterType="String" >
+		DELETE 
+		FROM rbuddy r 
+		WHERE EXISTS (
+	  	  SELECT '1' 
+	   	  FROM sbuddy s
+	      WHERE s.buddyNum = r.buddyNum 
+	      AND receiver = #{receiver}
+	    ) AND buddyCheck = 1
+	</delete>
+	
+	<!-- 받은 편지함  -->
+	<select id="listRbuddy" parameterType="map" resultType="com.of.buddy.Buddy">
+		SELECT b.buddyNum, buddyState, buddyCheck, sender, receiver, title, rDate, NVL(fileCount, 0) fileCount,
+			   dType, pType, name
+		FROM buddy b
+		JOIN rbuddy r ON b.buddyNum = r.buddyNum
+		JOIN sbuddy s ON b.buddyNum = s.buddyNum
+		JOIN employee e ON e.empNo = r.sender
+		JOIN history h ON e.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+		LEFT OUTER JOIN (
+				SELECT buddyNum, COUNT(*) fileCount FROM buddyFile
+				GROUP BY buddyNum
+			) f ON b.buddyNum=f.buddyNum
+		WHERE receiver = #{receiver} 	
+		
+			<if test="keyword != null and keyword != ''">
+				AND <include refid="where-list"/>
+			</if>
+		
+		ORDER BY b.buddyNum DESC
+   	    OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY	
+	</select>
+	
+	<!-- 보낸 편지함  -->
+	<select id="listSbuddy" parameterType="map" resultType="com.of.buddy.Buddy">
+		SELECT b.buddyNum, buddyState, buddyCheck, sender, receiver, title, sDate, NVL(fileCount, 0) fileCount,
+			   dType, pType, name, e.empNo
+		FROM buddy b
+		JOIN rbuddy r ON b.buddyNum = r.buddyNum
+		JOIN sbuddy s ON b.buddyNum = s.buddyNum
+		JOIN employee e ON e.empNo = s.receiver
+		JOIN history h ON e.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+		LEFT OUTER JOIN (
+				SELECT buddyNum, COUNT(*) fileCount FROM buddyFile
+				GROUP BY buddyNum
+			) f ON b.buddyNum=f.buddyNum
+		WHERE sender = #{sender}
+		
+			<if test="keyword != null and keyword != ''">
+				AND <include refid="where-list"/>
+			</if>
+		
+		ORDER BY b.buddyNum DESC
+   	    OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY	
+	</select>
+	
+	<!-- 중요 보관함  -->
+	<select id="keepList" parameterType="map" resultType="com.of.buddy.Buddy">
+		SELECT b.buddyNum, buddyState, buddyCheck, sender, receiver, title, rDate, NVL(fileCount, 0) fileCount,
+			   dType, pType, name
+		FROM buddy b
+		JOIN rbuddy r ON b.buddyNum = r.buddyNum
+		JOIN sbuddy s ON b.buddyNum = s.buddyNum
+		JOIN employee e ON e.empNo = r.sender
+		JOIN history h ON e.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+		LEFT OUTER JOIN (
+				SELECT buddyNum, COUNT(*) fileCount FROM buddyFile
+				GROUP BY buddyNum
+			) f ON b.buddyNum=f.buddyNum
+		WHERE receiver = #{receiver} AND buddyState = 1		
+		
+			<if test="keyword != null and keyword != ''">
+				AND <include refid="where-list"/>
+			</if>			
+			
+		ORDER BY b.buddyNum DESC
+   	    OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY	
+	</select>
+	
+	<!-- 파일 리스트 -->
+	<select id="listFile" parameterType="Integer" resultType="com.of.buddy.Buddy">
+		SELECT fileNum, buddyNum, saveFilename, originalFilename, fileSize
+		FROM buddyFile
+		WHERE buddyNum=#{buddyNum}    
+	</select>	
+	
+	<!-- 받은 메일 읽기 --> 
+	 <select id="readBuddy" parameterType="Integer" resultType="com.of.buddy.Buddy">
+		SELECT DISTINCT b.buddyNum, title, content, e.name, dType, pType, email, sDate, tel, buddyState,
+			   NVL(fileCount, 0) fileCount, imageFilename, e.empNo
+		FROM buddy b
+        JOIN rbuddy r ON b.buddyNum = r.buddyNum
+		JOIN sbuddy s ON b.buddyNum = s.buddyNum
+        JOIN employee e ON r.sender = e.empNo
+		JOIN history h ON h.empNo = e.empNo 
+		JOIN dept dpt ON h.dCode = dpt.dCode
+		JOIN position p ON p.pCode = h.pCode
+		JOIN profile pf ON e.empNo = pf.empNo
+		LEFT OUTER JOIN (
+			SELECT buddyNum, COUNT(*) fileCount FROM buddyFile
+			GROUP BY buddyNum
+		) bf ON b.buddyNum=bf.buddyNum
+		WHERE b.buddyNum = #{buddyNum}
+	</select>
+	
+	<!-- 보낸 메일 읽기 --> 
+	 <select id="readSendBuddy" parameterType="map" resultType="com.of.buddy.Buddy">
+		SELECT DISTINCT b.buddyNum, title, content, e.name, dType, pType, email, sDate, tel, buddyState,
+			   NVL(fileCount, 0) fileCount, imageFilename, e.empNo
+		FROM buddy b
+        JOIN rbuddy r ON b.buddyNum = r.buddyNum
+		JOIN sbuddy s ON b.buddyNum = s.buddyNum
+        JOIN employee e ON s.receiver = e.empNo
+		JOIN history h ON h.empNo = e.empNo 
+		JOIN dept dpt ON h.dCode = dpt.dCode
+		JOIN position p ON p.pCode = h.pCode
+		JOIN profile pf ON e.empNo = pf.empNo
+		LEFT OUTER JOIN (
+			SELECT buddyNum, COUNT(*) fileCount FROM buddyFile
+			GROUP BY buddyNum
+		) bf ON b.buddyNum=bf.buddyNum
+		WHERE b.buddyNum = #{buddyNum} AND e.empNo = #{empNo}
+	</select>
+	
+	<!-- 이전 메일 -->
+	<select id="preReadBuddy" parameterType="map" resultType="com.of.buddy.Buddy">
+		SELECT buddyNum, title
+		FROM buddy b
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (buddyNum &gt; #{buddyNum})
+		</where>
+		ORDER BY buddyNum ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <!-- 다음 메일 -->
+    <select id="nextReadBuddy" parameterType="map" resultType="com.of.buddy.Buddy">
+		SELECT buddyNum, title
+		FROM buddy b
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (buddyNum &lt; #{buddyNum})
+		</where>
+		ORDER BY buddyNum DESC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+	
+	<!-- 파일 읽기 -->
+	<select id="readFile" parameterType="Integer" resultType="com.of.buddy.Buddy">
+		SELECT fileNum, buddyNum, saveFilename, originalFilename
+		FROM buddyFile
+	    WHERE fileNum=#{fileNum}      
+	</select>
+	
+	<!-- 읽음 표시 -->
+	<update id="updateCheck" parameterType="Integer">
+		UPDATE rBuddy SET buddyCheck = 1 WHERE buddyNum = #{buddyNum}
+	</update>
+	
+	<!-- 중요 표시 -->
+	<update id="updateState" parameterType="Integer">
+		UPDATE rBuddy SET buddyState = 1 WHERE buddyNum = #{buddyNum}
+	</update>
+	
+	<!-- 중요 표시 해제-->
+	<update id="updateState2" parameterType="Integer">
+		UPDATE rBuddy SET buddyState = 0 WHERE buddyNum = #{buddyNum}
+	</update>
+	
+	<!-- 메일 삭제 -->
+	<delete id="deleteBuddy" parameterType="Integer">
+		DELETE FROM buddy WHERE buddyNum=#{buddyNum}
+	</delete>
+	
+	<delete id="deleteListBuddy" parameterType="java.util.List">
+		DELETE FROM buddy WHERE buddyNum IN 
+			<foreach item="buddyNum" collection="list" index="index" open="(" separator="," close=")">
+				#{buddyNum}
+			</foreach>
+	</delete>
+	
+	<!-- 파일 삭제 -->
+	<delete id="deleteFile" parameterType="map">
+		DELETE FROM buddyFile WHERE ${field} = #{num}
+	</delete>
+	
+	
+	
+</mapper>

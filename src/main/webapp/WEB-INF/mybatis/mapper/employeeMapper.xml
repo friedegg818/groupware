@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="employee">
+	<select id="loginEmployee" parameterType="String" resultType="com.of.employee.Employee">
+		SELECT e.empNo, name, pwd, r.rCode, rType, d.dCode, dType, p.pCode, pType, lastLogin, imageFilename, tel, email
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+		JOIN Dept d ON h.dCode = d.dCode
+		JOIN Right r ON e.rCode = r.rCode
+		JOIN Position p ON h.pCode = p.pCode
+		JOIN Profile pf ON e.empNo = pf.empNo
+		WHERE e.empNo = #{empNo}
+	</select>
+	
+	<update id="updateLastLogin" parameterType="String">
+		UPDATE employee SET lastLogin = SYSDATE
+		WHERE empNo = #{empNo}
+	</update>
+	
+	<!-- 사원 등록 -->
+	<insert id="insertEmployee1" parameterType="com.of.employee.Employee">
+		INSERT INTO employee(employeeNum, empNo, pwd, name, birth, tel, email, addr, enable, rCode, lastLogin)
+		VALUES (seq_employeeNum.NEXTVAL, #{empNo}, #{pwd}, #{name}, #{birth}, #{tel}, #{email}, #{addr}, 1, #{rCode}, SYSDATE)
+	</insert>
+	
+	<insert id="insertEmployee2" parameterType="com.of.employee.Employee">	
+		INSERT INTO history(hNum, empNo, dCode, pCode, apDate, memo)
+		VALUES (seq_historyNum.NEXTVAL, #{empNo}, #{dCode}, #{pCode}, #{apDate}, #{memo})
+	</insert>
+		
+	<insert id="insertEmployee3" parameterType="com.of.employee.Employee">
+		INSERT INTO career(cNum, empNo, enterDate, enterType, exitDate)
+		VALUES (seq_careerNum.NEXTVAL, #{empNo}, #{enterDate}, '입사', #{exitDate})
+	</insert>
+	
+	<insert id="insertEmployee4" parameterType="com.of.employee.Employee">
+		INSERT INTO profile(empNo, intro, imageFilename)
+			VALUES (#{empNo}, '', '')
+	</insert>
+	
+	<insert id="insertEmployee5" parameterType="com.of.employee.Employee">
+		INSERT INTO publicAddr(empNo) VALUES(#{empNo})
+	</insert>
+
+	<!-- 사원 리스트 -->
+	<select id="listEmployee"  resultType="com.of.employee.Employee" parameterType="map">
+		SELECT e.empNo, name, tel, email, TO_CHAR(enterDate, 'YYYY-MM-DD') enterDate, d.dCode, d.dType, p.pCode, p.pType, employeeNum
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+		<where>
+			<if test="keyword!=null and keyword !='' ">
+				<include refid="where-list"/>
+			</if>
+			AND enable = 1
+		</where>
+		ORDER BY employeeNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="listEmployeeLeave"  resultType="com.of.employee.Employee" parameterType="map">
+		SELECT e.empNo, name, tel, email, TO_CHAR(enterDate, 'YYYY-MM-DD') enterDate, d.dCode, d.dType, p.pCode, p.pType, employeeNum
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+		<where>
+			<if test="keyword!=null and keyword !='' ">
+				<include refid="where-list"/>
+			</if>
+			AND enable = 0
+		</where>
+		ORDER BY employeeNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+
+	<select id="readEmployee" parameterType="Integer" resultType="com.of.employee.Employee">
+		SELECT e.empNo, name, TO_CHAR(birth, 'YYYY-MM-DD') birth, tel, email, addr, d.dCode, dType, p.pCode, pType,
+			TO_CHAR(enterDate, 'YYYY-MM-DD') enterDate, TO_CHAR(exitDate, 'YYYY-MM-DD') exitDate, TO_CHAR(apDate, 'YYYY-MM-DD') apDate, memo
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+        WHERE employeeNum = #{employeeNum}
+	</select>
+	
+	<select id="readEmployee2" parameterType="String" resultType="com.of.employee.Employee">
+		SELECT e.empNo, name, TO_CHAR(birth, 'YYYY-MM-DD') birth, tel, email, addr, d.dCode, dType, p.pCode, pType,
+			TO_CHAR(enterDate, 'YYYY-MM-DD') enterDate, TO_CHAR(exitDate, 'YYYY-MM-DD') exitDate, TO_CHAR(apDate, 'YYYY-MM-DD') apDate, memo
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+        WHERE e.empNo = #{empNo}
+	</select>
+	
+	<!-- 데이터 개수 -->
+	<select id="dataCount" resultType="Integer" parameterType="map" >
+		SELECT NVL(COUNT(employeeNum),0) 
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+        JOIN position p ON p.pCode = h.pCode
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN career c ON c.empNo = e.empNo
+		<where>
+			<if test="keyword!=null and keyword !='' ">
+				<include refid="where-list"/>
+			</if>
+			AND enable = 1
+		</where>
+	</select>
+	
+	<select id="dataCountLeave" resultType="Integer" parameterType="map" >
+		SELECT NVL(COUNT(employeeNum),0) 
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+        JOIN position p ON p.pCode = h.pCode
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN career c ON c.empNo = e.empNo
+		<where>
+			<if test="keyword!=null and keyword !='' ">
+				<include refid="where-list"/>
+			</if>
+			AND enable = 0
+		</where>
+	</select>
+	
+	<!-- 사원 리스트 검색 -->
+	<sql id="where-list">
+		<if test="condition=='all' ">
+			TO_CHAR(enterDate, 'YYYY') = #{keyword}
+			OR INSTR(e.empNo, #{keyword}) &gt; 0
+			OR name=#{keyword}
+			OR INSTR(dType, #{keyword}) &gt; 0
+			OR INSTR(pType, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='enterDate' ">
+			TO_CHAR(enterDate, 'YYYY') = #{keyword}
+		</if>
+		<if test="condition=='empNo' ">
+			INSTR(e.empNo, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='name' ">
+			name=#{keyword}
+		</if>
+		<if test="condition=='dType' ">
+			INSTR(dType, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='pType' ">
+			INSTR(pType, #{keyword}) &gt; 0
+		</if>
+	</sql>
+	
+	<!-- 사원 정보 수정 -->
+	<update id="updateEmployee1" parameterType="com.of.employee.Employee">
+	<choose>
+		<when test="enable != 0">
+			UPDATE employee SET name = #{name}, birth = #{birth}, tel = #{tel}, email = #{email}, addr = #{addr}
+			WHERE empNo = #{empNo}
+		</when>
+		<otherwise>
+			UPDATE employee SET enable = #{enable}
+			WHERE empNo = #{empNo}
+		</otherwise>
+	</choose>
+	</update>
+        
+    <update id="updateEmployee2" parameterType="com.of.employee.Employee">
+        UPDATE history
+        SET dCode = #{dCode}, pCode = #{pCode}, apDate = #{apDate}, memo = #{memo}
+        WHERE empNo = #{empNo}
+	</update>
+	
+	<update id="updateEmployee3" parameterType="com.of.employee.Employee">
+		UPDATE career SET enterDate = #{enterDate},	exitDate = #{exitDate}, enterType = '퇴사'
+        WHERE empNo = #{empNo}
+	</update>
+	
+	<!-- 부서명 -->
+	<select id="listDept" resultType="String">
+		SELECT dType FROM dept WHERE dOrgan=1
+		ORDER BY DECODE(dType, '대표이사', 0, '개발부', 1, '경영지원부', 2, '기획부', 3, '인사부', 4, '홍보부', 5,6)
+	</select>
+	
+	<!-- 조직도 리스트 -->
+	<select id="listEmpOrg"  resultType="com.of.employee.Employee" parameterType="map">
+		SELECT distinct e.empNo, name,dOrgan, dType, pType, imageFilename,clockIn,clockOut
+		FROM employee e
+		LEFT OUTER JOIN workTime w ON w.empNo=e.empNo
+				AND TO_CHAR(clockIn,'YYYY-MM-DD') = TO_CHAR(SYSDATE,'YYYY-MM-DD') AND TO_CHAR(clockIn,'HH24:MI:SS') &lt;= TO_CHAR(SYSDATE,'HH24:MI:SS')
+				AND (TO_CHAR(clockOut,'YYYY-MM-DD') = TO_CHAR(SYSDATE,'YYYY-MM-DD') OR (clockOut is null))
+		JOIN profile pf ON pf.empNo=e.empNo
+		JOIN history h ON e.empNo = h.empNo
+		JOIN dept d ON h.dCode = d.dCode
+		JOIN position p ON h.pCode = p.pCode
+		WHERE dType=#{dept} AND  dOrgan=1
+		ORDER BY DECODE(dType, '대표이사', 0, '개발부', 1, '경영지원부', 2, '기획부', 3, '인사부', 4, '홍보부', 5,6), 
+			DECODE(pType, '대표이사', 0, '부사장', 1, '이사', 2, '부장', 3, '차장', 4, '과장', 5, '대리', 6,  '사원',7,8)
+	</select>
+	
+</mapper>

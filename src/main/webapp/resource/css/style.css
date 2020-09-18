@@ -1,0 +1,34 @@
+﻿@charset "UTF-8";
+
+*:focus { outline:none; }
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: NanumSquareRound, 나눔바른고딕, "Malgun Gothic", "맑은 고딕", NanumGothic, 나눔고딕, 돋움, sans-serif;
+	font-size: 14px;
+	background: white;
+}
+
+i {	font-family: NanumSquareRound; }
+
+a {
+	font-family: NanumSquareRound; 
+	cursor: pointer;
+	color: #000000;
+	text-decoration: none;
+}
+
+a:hover, a:active {
+	color: #2ECCFA;
+}
+
+#wrap{
+	width:100%;
+	height: 100%;
+	min-width:1200px;
+	min-height:880px;
+}

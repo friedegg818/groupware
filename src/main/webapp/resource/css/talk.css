@@ -1,0 +1,36 @@
+@charset "UTF-8";
+
+
+
+.talk-write {
+	margin-top:10px;
+}
+.more:active, .more:focus, .more:hover {
+    cursor: pointer;
+    color: #333333;
+}
+
+.content-todayTalk a:active{color: plum; text-decoration: none;  }
+.content-todayTalk a:focus{color: plum; text-decoration: none;  }
+.content-todayTalk a:hover{color: plum; text-decoration: none;  }
+
+
+a:active, a:focus, a:hover {
+	background: none;
+	color: plum;
+	border:none;
+	cursor: pointer;
+
+}
+
+
+.talkBtn{
+	padding-left:5px;
+	border: none;
+	background: transparent;
+	
+}
+
+.talkBtn i{
+	font-size: 35px;
+}

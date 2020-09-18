@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="data">
+	<select id="seq" resultType="Integer">
+		SELECT seq_data.NEXTVAL FROM dual
+	</select>
+	
+	<insert id="insertData" parameterType="com.of.data.Data">
+		INSERT INTO data(dataNum, dataCode, title, writer, content, created, dCode)
+				VALUES(#{dataNum}, #{dataCode}, #{title},
+					#{writer}, #{content}, SYSDATE, #{dCode})
+	</insert>	
+	
+	<sql id="where-list">		
+		<if test="condition=='title' ">
+			INSTR(title, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='dataType' ">
+			INSTR(dataType, #{keyword}) &gt; 0 
+		</if>
+		<if test="condition=='name' ">
+			name=#{keyword}
+		</if>
+		<if test="condition=='created' ">
+			( TO_CHAR(created, 'YYYY-MM-DD') = #{keyword}
+				OR TO_CHAR(created, 'YYYYMMDD') = #{keyword} )
+		</if>		
+	</sql>
+	
+	<!-- 데이터개수  -->
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM data d
+		JOIN employee e ON d.writer = e.empNo
+		JOIN dataGroup dg ON d.dataCode = dg.dataCode		
+		<where>
+			d.dCode= #{dCode}
+			<if test="keyword != null and keyword != ''">
+				AND <include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<!-- 리스트 -->
+	<select id="listData" parameterType="map" resultType="com.of.data.Data">
+		SELECT d.dataNum, dg.dataType, e.name, title, created, d.dCode, dType, pType,
+		NVL(fileCount, 0) fileCount, NVL(replyCount, 0) replyCount, df.fileSize
+		FROM data d
+		JOIN employee e ON d.writer = e.empNo
+		JOIN history h ON h.empNo = e.empNo 
+		JOIN position p ON p.pCode = h.pCode
+		JOIN dataGroup dg ON d.dataCode = dg.dataCode
+		LEFT OUTER JOIN dept dpt ON d.dCode = dpt.dCode
+		LEFT OUTER JOIN dataFile df ON d.dataNum = df.dataNum
+ 		LEFT OUTER JOIN (
+			SELECT dataNum, COUNT(*) fileCount FROM dataFile
+			GROUP BY dataNum
+		) f ON d.dataNum=f.dataNum 
+		LEFT OUTER JOIN (
+			SELECT dataNum, COUNT(*) replyCount FROM dataReply
+			WHERE answer=0
+			GROUP BY dataNum
+		) r ON d.dataNum=r.dataNum
+		<where>
+			d.dCode= #{dCode}
+			<if test="keyword != null and keyword != ''">
+				AND <include refid="where-list"/>
+			</if>
+		</where>
+		ORDER BY dataNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	 </select>
+	 
+	 <!--부서별 리스트 -->
+	<select id="deptListData" parameterType="map" resultType="com.of.data.Data">
+		SELECT d.dataNum, dg.dataType, e.name, title, created, d.dCode, dType,
+		NVL(fileCount, 0) fileCount, NVL(replyCount, 0) replyCount, df.fileSize
+		FROM data d
+		JOIN employee e ON d.writer = e.empNo
+		JOIN dataGroup dg ON d.dataCode = dg.dataCode
+		LEFT OUTER JOIN dept dpt ON d.dCode = dpt.dCode
+		LEFT OUTER JOIN dataFile df ON d.dataNum = df.dataNum
+ 		LEFT OUTER JOIN (
+			SELECT dataNum, COUNT(*) fileCount FROM dataFile
+			GROUP BY dataNum
+		) f ON d.dataNum=f.dataNum 
+		LEFT OUTER JOIN (
+			SELECT dataNum, COUNT(*) replyCount FROM dataReply
+			WHERE answer=0
+			GROUP BY dataNum
+		) r ON d.dataNum=r.dataNum					
+		<where>
+			<if test="dCode!=''">
+				d.dCode=#{dCode}
+				<if test="keyword != null and keyword != ''">
+				 AND <include refid="where-list"/>								
+				</if>
+			</if>
+			<if test="dCode==''">
+				<if test="keyword != null and keyword != ''">
+					<include refid="where-list"/>								
+				</if>
+			</if>		
+		</where>
+	 </select>	 
+	 
+	 
+	<!-- 파일 -->
+	<select id="totalFile" resultType="Integer">
+	 	SELECT SUM(fileSize) sum FROM dataFile
+	 </select>
+	
+	<insert id="insertFile" parameterType="com.of.data.Data">
+		INSERT INTO dataFile (fileNum, dataNum, originalFileName, saveFileName, fileSize) VALUES
+				(seq_dataFile.NEXTVAL, #{dataNum}, #{originalFilename}, #{saveFilename}, #{fileSize})
+	</insert>	
+	
+	<select id="listFile" parameterType="Integer" resultType="com.of.data.Data">
+		SELECT fileNum, dataNum, saveFilename, originalFilename, fileSize
+		FROM dataFile
+		WHERE dataNum=#{dataNum}    
+	</select>
+	
+	<select id="readFile" parameterType="Integer" resultType="com.of.data.Data">
+		SELECT fileNum, dataNum, saveFilename, originalFilename
+		FROM dataFile
+	    WHERE fileNum=#{fileNum}      
+	</select>
+	
+	<delete id="deleteFile" parameterType="map">
+		DELETE FROM dataFile WHERE ${field} = #{num}
+	</delete>
+	
+	<!-- 글보기 -->
+    <select id="readData" parameterType="Integer" resultType="com.of.data.Data">
+		SELECT d.dataNum, dg.dataType, e.name, title, content, created, d.dCode, dpt.dType, pType,
+		NVL(replyCount, 0) replyCount	  
+		FROM data d
+		JOIN employee e ON d.writer = e.empNo
+		JOIN history h ON h.empNo = e.empNo 
+		JOIN dept dpt ON h.dCode = dpt.dCode
+		JOIN position p ON p.pCode = h.pCode
+		JOIN dataGroup dg ON d.dataCode = dg.dataCode
+		LEFT OUTER JOIN (
+			SELECT dataNum, COUNT(*) replyCount FROM dataReply
+			WHERE answer=0
+			GROUP BY dataNum
+		) r ON d.dataNum=r.dataNum
+		WHERE d.dataNum = #{dataNum}
+	</select>
+	
+	<!-- 이전글 -->
+	<select id="preReadData" parameterType="map" resultType="com.of.data.Data">
+		SELECT dataNum, title
+		FROM data d
+		JOIN employee e ON d.writer = e.empNo
+		JOIN dataGroup dg ON d.dataCode = dg.dataCode
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (dataNum &gt; #{dataNum})
+		</where>
+		ORDER BY dataNum ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <!-- 다음글 -->
+    <select id="nextReadData" parameterType="map" resultType="com.of.data.Data">
+		SELECT dataNum, title
+		FROM data d
+		JOIN employee e ON d.writer = e.empNo
+		JOIN dataGroup dg ON d.dataCode = dg.dataCode
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (dataNum &lt; #{dataNum})
+		</where>
+		ORDER BY dataNum DESC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+    
+    <!-- 수정 -->
+	<update id="updateData" parameterType="com.of.data.Data">
+		UPDATE data SET title=#{title},
+				content=#{content}, dataCode=#{dataCode}
+		WHERE dataNum=#{dataNum}
+	</update>
+    
+	<!-- 삭제 -->	
+	<delete id="deleteData" parameterType="Integer">
+		DELETE FROM data WHERE dataNum=#{dataNum}
+	</delete>
+	
+	<delete id="deleteListData" parameterType="java.util.List">
+		DELETE FROM data WHERE dataNum IN 
+			<foreach item="dataNum" collection="list" index="index" open="(" separator="," close=")">
+				#{dataNum}
+			</foreach>
+	</delete>
+	
+	<!-- 댓글/답글 등록 -->
+	<insert id="insertReply" parameterType="com.of.data.DataReply">
+		INSERT INTO dataReply (dataNum, replyNum, replyWriter, content, created, answer) VALUES (#{dataNum}, seq_dataReply.NEXTVAL, #{replyWriter}, #{content}, SYSDATE, #{answer})
+	</insert>
+	
+	<!-- 게시글의 댓글 개수 -->
+	<select id="replyCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*),0) 
+		FROM dataReply
+		WHERE dataNum=#{dataNum}
+	</select>
+	
+	<!-- 게시글의 댓글 리스트 -->
+	<select id="listReply" parameterType="map" resultType="com.of.data.DataReply">
+		SELECT r.replyNum, e.name, r.content, r.created, dpt.dType, p.pType,
+			   NVL(answerCount, 0) answerCount								
+		FROM dataReply r 
+		JOIN employee e ON r.replyWriter = e.empNo
+		JOIN history h ON h.empNo = e.empNo 
+		JOIN dept dpt ON h.dCode = dpt.dCode
+		JOIN position p ON p.pCode = h.pCode
+		LEFT OUTER JOIN (						
+			SELECT answer, COUNT(*) answerCount
+			FROM dataReply
+			WHERE answer!=0 
+			GROUP BY answer 		
+		) a ON r.replyNum = a.answer
+		WHERE dataNum = #{dataNum} AND r.answer = 0
+		ORDER BY r.replyNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<!-- 게시글의 댓글 및 답글 삭제 -->
+	<delete id="deleteReply" parameterType="map">
+		DELETE FROM dataReply WHERE 
+		<if test="mode=='reply' ">
+			replyNum IN (
+				SELECT replyNum FROM dataReply
+				 START WITH replyNum = #{replyNum}
+				 CONNECT BY PRIOR replyNum = answer 
+			)
+		</if>	
+		<if test="mode=='answer' ">
+			replyNum = #{replyNum}
+		</if>
+	</delete>
+	
+	<!-- 댓글의 답글 개수 -->
+	<select id="replyAnswerCount" parameterType="Integer" resultType="Integer">
+		SELECT NVL(COUNT(*), 0) 
+		FROM dataReply 
+		WHERE answer=#{answer}
+	</select>
+	
+	<!-- 댓글의 답글 리스트 -->
+	<select id="listReplyAnswer" parameterType="Integer" resultType="com.of.data.DataReply">
+		SELECT replyNum, dataNum, name, content, created, answer, dpt.dType, p.pType
+		FROM dataReply d
+		JOIN employee e ON e.empNo = d.replyWriter
+		JOIN history h ON h.empNo = e.empNo 
+		JOIN dept dpt ON h.dCode = dpt.dCode
+		JOIN position p ON p.pCode = h.pCode
+		WHERE answer= #{answer}
+		ORDER BY replyNum DESC
+	</select>	
+
+	 
+</mapper>

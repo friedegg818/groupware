@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="workTime">
+	<insert id="insertWorkTime" parameterType="map">
+		INSERT INTO workTime(empNo, workDate, clockIn, workCode, ipAddr) 
+		VALUES( #{empNo}, TO_CHAR(SYSDATE, 'YYYY-MM-DD') , SYSDATE, #{workCode}, #{ipAddr} )
+	</insert>
+	
+	<insert id="insertOutWorkTime" parameterType="map">
+		INSERT INTO workTime(empNo, workDate, clockIn, workCode, out1, ipAddr) 
+		VALUES( #{empNo}, TO_CHAR(SYSDATE, 'YYYY-MM-DD') , SYSDATE, #{workCode}, 'E', #{ipAddr} )
+	</insert>
+	
+	<update id="otherMemo" parameterType="map">
+		UPDATE workTime
+		SET other = #{workMemo}
+		WHERE TO_CHAR(workDate, 'YYYY-MM-DD') = #{workDate} AND empNo = #{empNo} 
+	</update>
+	
+	<update id="updateWorkTime" parameterType="map">
+		UPDATE workTime
+		SET clockOut = SYSDATE
+		WHERE TO_CHAR(workDate, 'YYYYMMDD') = #{workDate} AND empNo = #{empNo}
+	</update>
+	
+	
+	<update id="updateOutWorkTime" parameterType="map">
+		UPDATE workTime
+		SET out2 = 'E',
+			clockOut = SYSDATE,
+			workCode = #{workCode}
+		WHERE TO_CHAR(workDate, 'YYYYMMDD') = #{workDate} AND empNo = #{empNo}
+	</update>
+	
+	
+	<update id="updateWorkCode" parameterType="map">
+		UPDATE workTime
+		SET workCode = #{workCode}
+		WHERE TO_CHAR(workDate, 'YYYYMMDD') = #{workDate} AND empNo = #{empNo}
+	</update>
+	
+	<select id="toDayChekc" parameterType="Integer" resultType="com.of.workTime.WorkTime">
+		SELECT empNo, workDate, clockIn, clockOut, workCode, out1,out2, ipAddr
+		FROM workTime
+		WHERE empNo = #{empNo} AND TO_CHAR(workDate, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD')
+	</select>
+	
+	<sql id="where-list">
+		
+	</sql>
+	
+	<select id="monthList" parameterType="map" resultType="com.of.workTime.WorkTime">
+		SELECT empNo, workDate, clockIn, clockOut, workCode, out1,out2,other, ipAddr
+		FROM workTime w
+		WHERE empNo = #{empNo} AND TO_CHAR(workDate, 'YYYY-MM') = #{currDate}
+		ORDER BY workDate ASC
+	</select>
+	
+	<select id="weekList" parameterType="map" resultType="com.of.workTime.WorkTime">
+		SELECT empNo, workDate, clockIn, clockOut, workCode, out1,out2,other, ipAddr
+		FROM workTime w
+		JOIN empNo e ON w.empNo = e.empNo
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+		JOIN dept d ON d.dCode = h.dCode
+		JOIN position p ON p.pCode = h.pCode
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+		</where>
+		ORDER BY workDate DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{row} ROWS ONLY
+	</select>
+	
+	<insert id="insertVacation" parameterType="map">
+		INSERT INTO workTime(empNo, workDate, workCode, ipAddr, other) 
+		VALUES( #{empNo}, #{startDay}, #{workCode}, #{ipAddr}, #{endDay})
+	</insert>
+	
+	<select id="countCodeB" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM workTime
+		WHERE empNO = #{empNo} AND workCode = 'B' AND TO_CHAR(workDate, 'YYYY-MM') = #{currDate}
+	</select>
+	
+	<select id="countCodeC" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM workTime
+		WHERE empNO = #{empNo} AND workCode = 'C' AND TO_CHAR(workDate, 'YYYY-MM') = #{currDate}
+	</select>
+	
+	<select id="countCodeG" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM workTime
+		WHERE empNO = #{empNo} AND workCode = 'G' AND TO_CHAR(workDate, 'YYYY') = #{currDate2}
+	</select>
+	
+</mapper>

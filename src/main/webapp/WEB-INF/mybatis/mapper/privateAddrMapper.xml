@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="privateAddr">
+	<!-- 개인주소록 빠른 등록 -->
+	<insert id="insertPrivateAddrSpeed" parameterType="com.of.privateaddr.PrivateAddr">
+		INSERT INTO privateAddr(addrNum, empNo, name, tel, email, groupNum)
+		VALUES (seq_addr.NEXTVAL, #{empNo}, #{name}, #{tel}, #{email}, #{groupNum})
+	</insert>
+	
+	<!-- 개인주소록 등록 -->
+	<insert id="insertPrivateAddr" parameterType="com.of.privateaddr.PrivateAddr">
+		INSERT INTO privateAddr(addrNum, empNo, name, tel, email, company, dName, dTel, dAddr, memo, groupNum)
+		VALUES (seq_addr.NEXTVAL, #{empNo}, #{name}, #{tel}, #{email}, #{company}, #{dName}, #{dTel}, #{dAddr}, #{memo}, #{groupNum})
+	</insert>
+	
+	<!-- 모달 그룹 등록 -->
+	<select id="seq_group" resultType="Integer">
+		SELECT seq_group.NEXTVAL FROM dual
+	</select>
+	<insert id="modalInsert" parameterType="com.of.privateaddr.PrivateAddr">
+		INSERT INTO groupAddr(groupNum, groupType, empNo)
+		VALUES (#{groupNum}, #{groupType}, #{empNo})
+	</insert>
+	
+	<!-- 모달 그룹 리스트 -->
+	<select id="listModal" parameterType="String" resultType="com.of.privateaddr.PrivateAddr">
+		SELECT groupNum, groupType
+		FROM groupAddr
+		WHERE empNo = #{empNo}
+		ORDER BY groupNum
+	</select>
+	
+	<!-- 데이터 개수 -->
+	<select id="dataCount" resultType="Integer" parameterType="map" >
+		SELECT NVL(COUNT(*),0) 
+		FROM privateAddr p
+		JOIN groupAddr g ON p.GROUPNUM = g.GROUPNUM
+		<where>
+			AND p.empNo = #{empNo}
+			<if test="keyword!=null and keyword !='' ">
+				<include refid="where-list"/>
+			</if>
+			<if test="kor != null and kor != '' and kor2 != null and kor2 != '' ">
+				AND ( name &gt;= #{kor} AND name &lt; #{kor2} )
+			</if>
+		</where>
+	</select>
+	
+	<!-- 개인주소록 리스트 -->
+	<select id="listPrivateAddr"  resultType="com.of.privateaddr.PrivateAddr" parameterType="map">
+		SELECT addrNum, p.empNo, name, tel, email, company, p.groupNum, groupType
+		FROM privateAddr p
+        JOIN groupAddr g ON p.GROUPNUM = g.GROUPNUM
+    	<where>
+    	AND p.empNo = #{empNo}
+			<if test="keyword!=null and keyword !='' ">
+				<include refid="where-list"/>
+			</if>
+			<if test="kor != null and kor != '' and kor2 != null and kor2 != '' ">
+				AND ( name &gt;= #{kor} AND name &lt; #{kor2} )
+			</if>
+		</where>
+   		ORDER BY addrNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<!-- 개인 개인주소록 검색 리스트 -->
+	<sql id="where-list">
+		<if test="condition=='all'">
+			(INSTR(name,#{keyword}) &gt; 0 
+			OR REPLACE(tel, '-', '') like '%' ||  #{keyword} || '%'
+			OR INSTR(company,#{keyword}) &gt; 0
+			OR INSTR(groupType,#{keyword}) &gt; 0)
+		</if>
+		<if test="condition=='name'">
+			INSTR(name, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='tel'">
+			<!-- INSTR(tel, #{keyword}) &gt; 0 -->
+			REPLACE(tel, '-', '') like '%' ||  #{keyword} || '%'
+		</if>
+		<if test="condition=='company'">
+			INSTR(company, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='groupType'">
+			INSTR(groupType, #{keyword}) &gt; 0
+		</if>
+	</sql>
+	
+	<select id="readAddress" parameterType="Integer" resultType="com.of.privateaddr.PrivateAddr">
+		SELECT addrNum, name, email, tel, company, dName, dTel, dAddr, memo, g.groupNum, groupType, p.empNo
+		FROM privateAddr p
+        JOIN groupAddr g ON g.groupNum = p.groupNum
+        WHERE addrNum = #{addrNum}
+	</select>
+	
+	<!-- 개인 주소록 수정 -->		
+	<update id="updatePrivateAddr" parameterType="com.of.privateaddr.PrivateAddr">
+		UPDATE privateAddr SET name = #{name}, tel = #{tel}, email = #{email}, company = #{company}, 
+		dName = #{dName}, dTel = #{dTel}, dAddr = #{dAddr}, memo = #{memo}, groupNum = #{groupNum}
+		WHERE addrNum = #{addrNum}
+	</update>
+
+	<!-- 개인 주소록 삭제 -->
+	<delete id="deletePrivateAddr" parameterType="Integer">
+		DELETE FROM privateAddr WHERE addrNum = #{addrNum}
+	</delete>
+
+	<!-- 개인 주소록 내보내기 -->
+	<select id="listAllPrivateAddr" parameterType="String" resultType="com.of.privateaddr.PrivateAddr">
+		SELECT addrNum, name, email, tel, company, dName, dTel, dAddr, memo, g.groupNum, groupType, p.empNo
+		FROM privateAddr p
+        JOIN groupAddr g ON g.groupNum = p.groupNum
+        WHERE p.empNo = #{empNo}
+		ORDER BY addrNum
+	</select>
+</mapper>

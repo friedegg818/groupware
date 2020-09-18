@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="news">
+	
+	<insert id="insertNews" parameterType="com.of.news.News">
+		INSERT INTO news(newsNum, writer, title, content, created, nCode) 
+				VALUES(seq_news.NEXTVAL, #{writer}, #{title},#{content}, SYSDATE, #{nCode})
+	</insert>
+
+	<sql id="where-list">
+		<if test="condition=='title' ">
+			INSTR(title, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='content' ">
+			INSTR(content, #{keyword}) &gt; 0 
+		</if>
+		<if test="condition=='name' ">
+			name=#{keyword}
+		</if>
+		<if test="condition=='created' ">
+			( TO_CHAR(created, 'YYYY-MM-DD') = #{keyword}
+				OR TO_CHAR(created, 'YYYYMMDD') = #{keyword} )
+		</if>
+	</sql>
+	
+	<!-- 데이터개수  -->
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM news n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN newsType p ON n.nCode=p.nCode
+		<where>
+			<if test="nCode!=''">
+				p.nCode=#{nCode}
+				<if test="keyword != null and keyword != ''">
+					AND <include refid="where-list"/>								
+				</if>
+			</if>
+			
+			<if test="nCode==''">
+				<if test="keyword != null and keyword != ''">
+					<include refid="where-list"/>								
+				</if>
+			</if>
+		</where>
+	</select>
+	
+	<select id="dataCountAlert" resultType="Integer" parameterType="map">
+		SELECT NVL(COUNT(*), 0)
+		FROM news n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN newsType p ON n.nCode=p.nCode
+        WHERE n.nCode = 'COMPANY'
+	</select>
+	
+	<!-- 리스트 -->
+	<select id="listNews" parameterType="map" resultType="com.of.news.News">
+		SELECT n.newsNum, writer, name, title, TO_CHAR(created, 'YYYY-MM-DD')created, 
+			p.nCode, nType, NVL(replyCount, 0) replyCount,
+			dType, pType
+		FROM news n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN newsType p ON n.nCode=p.nCode
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		LEFT OUTER JOIN (
+			SELECT newsNum, COUNT(*) replyCount FROM newsReply
+			GROUP BY newsNum
+		) r ON n.newsNum = r.newsNum
+		<where>
+			<if test="nCode!=''">
+				p.nCode=#{nCode}
+				<if test="keyword != null and keyword != ''">
+					AND <include refid="where-list"/>								
+				</if>
+			</if>
+			<if test="nCode==''">
+				<if test="keyword != null and keyword != ''">
+					<include refid="where-list"/>								
+				</if>
+			</if>
+		
+		</where>
+		ORDER BY newsNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	 </select>
+
+    <!-- 글보기 -->
+    <select id="readNews" parameterType="Integer" resultType="com.of.news.News">
+		SELECT n.newsNum, writer, name, title,  content, TO_CHAR(created, 'YYYY-MM-DD')created, 
+			p.nCode, nType, 
+			dType, pType
+		FROM news n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN newsType p ON n.nCode=p.nCode
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		WHERE newsNum = #{newsNum}
+	</select>
+
+	<!-- 이전글 -->
+	<select id="preReadNews" parameterType="map" resultType="com.of.news.News">
+		SELECT newsNum, name, title, dType, pType
+		FROM news n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN newsType p ON n.nCode=p.nCode
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (newsNum &gt; #{newsNum})
+		</where>
+		ORDER BY newsNum ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <!-- 다음글 -->
+    <select id="nextReadNews" parameterType="map" resultType="com.of.news.News">
+		SELECT newsNum, name, title, dType, pType
+		FROM news n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN newsType p ON n.nCode=p.nCode
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (newsNum &lt; #{newsNum})
+		</where>
+		ORDER BY newsNum DESC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+    
+	<!-- 수정 -->
+	<update id="updateNews" parameterType="com.of.news.News">
+		UPDATE news SET title=#{title},
+				content=#{content}, nCode=#{nCode} 
+		WHERE newsNum=#{newsNum} AND writer=#{writer}
+	</update>
+    
+	<!-- 삭제 -->
+	<delete id="deleteNews" parameterType="Integer">
+		DELETE FROM news WHERE newsNum=#{newsNum}
+	</delete>
+	
+	
+	<!-- 리플 -->
+	<insert id="insertReply" parameterType="com.of.news.NewsReply">
+		INSERT INTO newsReply(replyNum, newsNum, replyWriter, content, created)
+			VALUES (seq_newsReply.NEXTVAL, #{newsNum}, #{replyWriter}, #{content}, SYSDATE)
+	</insert>
+
+	<select id="listReply" parameterType="map" resultType="com.of.news.NewsReply">
+		SELECT replyNum, replyWriter, name, newsNum, content, created, dType, pType
+		FROM newsReply r
+		JOIN employee e ON replyWriter = e.empNo
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		WHERE newsNum=#{newsNum}
+		ORDER BY replyNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="replyCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0) FROM newsReply
+		WHERE newsNum=#{newsNum}
+	</select>
+	
+	<delete id="deleteReply" parameterType="map">
+		DELETE FROM newsReply
+		WHERE replyNum = #{replyNum}
+	</delete>
+
+	
+</mapper>

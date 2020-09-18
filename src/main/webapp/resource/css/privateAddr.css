@@ -1,0 +1,681 @@
+@charset "UTF-8";
+
+/* main */
+#list-container {
+	width: 1500px;
+	align-content: center;
+	margin: 30px 0 0 200px;
+}
+
+#body-title {
+	font-size: 18px;
+	height: 30px;
+	/* background: lime; */
+}
+
+.titleFont {
+	 font-family: NanumSquareRound;
+}
+
+#privateAddr-count {
+	float: right;
+	width: 45px;
+	height: 20px;
+	text-align: center;
+	padding-top: 3px;
+	color: gray;
+	font-size: 15px;
+	/* background: orange; */
+}
+
+#listBtnBox {
+	float: left;
+	width: 20%;
+	/* background: aqua; */
+}
+
+#listBtnBox-left {
+	width: 280px;
+	height: 50px;
+	margin-top: 20px;
+	margin-left: 15px;
+	/* background: red; */
+}
+
+.new-button1 {
+	width: 180px;
+	height: 50px;
+	background: #9565A4;
+	color: white;
+	font-size: 25px;
+	border: none;
+	border-radius: 10px;
+	outline: 0;
+}
+
+.new-button2 {
+	width: 50px;
+	height: 50px;
+	background: #9565A4;
+	color: white;
+	font-size: 25px;
+	border: none;
+	border-radius: 10px;
+	outline: 0;
+}
+
+.new-button3 {
+	width: 230px;
+	height: 50px;
+	background: #9565A4;
+	color: white;
+	font-size: 25px;
+	border: none;
+	border-radius: 10px;
+	outline: 0;
+}
+
+.selectGroup-list {
+	height: 39px;
+	position: relative;
+	padding-top: 13px;
+	margin-left: 20px;
+	/* background: orange; */
+}
+
+.selectGroup-list .selectBox-list {
+	margin-top: 9px;
+	width: 110px;
+	height: 25px;
+	position: absolute;
+	top: 0;
+	z-index: 1;
+	border: none;
+	background: transparent;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	cursor: pointer;
+	padding-left: 5px;
+	font-size: 15px;
+}
+
+.selectGroup-list:before {
+	content: '';
+	position: absolute;
+	width: 110px;
+	height: 25px;
+	z-index: 0;
+	margin-top: -5px;
+	margin-left: 0px;
+	-webkit-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-moz-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	background-color: white;
+	-webkit-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	-moz-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	border: solid 1px #cbc9c9;
+}
+
+.selectGroup-list:after {
+	content: '';
+	position: absolute;
+	right: 165px;
+	width: 30px;
+	height: 26px;
+	background-color: #6E3C89;
+	background-image:
+		url(https://raw.githubusercontent.com/solodev/styling-select-boxes/master/select1.png);
+	background-position: center;
+	background-repeat: no-repeat;
+	z-index: 0;
+	margin-top: -5px;
+	-webkit-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-moz-border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	border-radius: 0px 0px 0px 0px/0px 0px 0px 0px;
+	-webkit-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	-moz-box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	box-shadow: 1px 2px 5px rgba(0, 0, 0, .09);
+	border: solid 1px #cbc9c9;
+}
+
+#searchBox {
+	margin-left: 20px;
+	margin-top: -10px;
+}
+
+#searchBox p {
+	font-size: 20px;
+	border: 1px solid #cccccc;
+	width: 220px;
+}
+
+#searchBox p input {
+	width: 170px;
+	height: 35px;
+	border: none;
+	font-size: 15px;
+	padding-left: 10px;
+	outline: 0;
+	autocomplete: off;
+}
+
+#searchBox button {
+	border: none;
+	background: transparent;
+	outline: 0;
+	width: 30px;
+	height: 30px;
+	margin-top: 5px;
+}
+
+/* list */
+#list-Box {
+	width: 1100px;
+	margin: -130px 0 0 300px;
+	float: left;
+}
+
+#speedInsertBox {
+	/* background: yellow; */
+	height: 50px;
+	line-height: 55px;
+	font-size: 15px;
+}
+
+#addrAdd {
+	width: 100px;
+	height: 35px;
+	background: none;
+	border: none;
+	outline: 0;
+}
+
+#addrAdd:hover {
+	cursor: pointer;
+	color: white;
+	background: #FFD228;
+}
+
+#excelOut {
+	width: 100px;
+	height: 35px;
+	background: none;
+	border: none;
+	outline: 0;
+}
+
+#excelOut:hover {
+	cursor: pointer;
+	color: white;
+	background: #FFD228;
+}
+
+#speedInsert {
+	/* background: aqua; */
+	height: 40px;
+	padding-top: 5px;
+	padding-left: 5px;
+}
+
+#textBox input {
+	height: 30px;
+	border-left: none;
+	border-top: none;
+	border-right: none;
+	border-bottom: 3px solid #9565A4;
+	margin-left: 5px;
+	outline: 0;
+}
+
+#groupButton {
+	height: 35px;
+	width: 80px;
+	font-weight: bold;
+	font-size: 14px;
+	background: white;
+	border: 1px solid gray;
+	outline: 0;
+}
+
+#groupButton:hover {
+	background: #9565A4;
+	color: white;
+}
+
+#groupAddButton {
+	height: 35px;
+	width: 60px;
+	font-size: 14px;
+	background: none;
+	border: 1px solid gray;
+}
+
+#groupAddButton:hover {
+	cursor: pointer;
+	background: #9565A4;
+	color: white;
+}
+
+#addrPrivate-container {
+	/* background: fuchsia; */
+	height: 50px;
+}
+
+#addrPrivate ul li {
+	float: left;
+	width: 35px;
+	height: 25px;
+	margin-top: 10px;
+	padding-top: 10px;
+	margin-right: 10px;
+	cursor: pointer;
+	margin-left: 10px;
+	font-weight: bold;
+	text-align: center;
+	/* background: lime; */
+}
+
+#addrPrivate ul li:hover {
+	height: 25px;
+	color: #EDA900;
+	border-bottom: 2px solid #EDA900;
+}
+
+#list-header table {
+	width: 1100px;
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin: 0px auto;
+	margin-top: 10px;
+	/* background: red; */
+}
+
+#list-menu {
+	margin: 0px auto;
+}
+
+#list-title {
+	height: 40px;
+	text-align: center;
+	background: #9565A4;
+	color: white;
+	font-weight: bold;
+}
+
+#name-title {
+	width: 150px;
+}
+
+#birth-title {
+	width: 150px;
+}
+
+#tel-title {
+	width: 200px;
+}
+
+#email-title {
+	width: 250px;
+}
+
+#dName-title {
+	width: 150px;
+}
+
+#dType-title {
+	width: 150px;
+}
+#pType-title {
+	width: 150px;
+}
+
+#group-title {
+	width: 150px;
+}
+
+#view-title {
+	width: 100px;
+}
+
+#delete-title {
+	width: 100px;
+}
+
+#list-content {
+	height: 40px;
+	text-align: center;
+	border-bottom: 1px solid #cccccc;
+}
+
+#list-content:hover {
+	background: #F2F2F2;
+	font-weight: bold;
+}
+
+#list-content button {
+	background: none;
+	border: none;
+	outline: 0;
+	cursor: pointer;
+}
+
+#list-paging {
+	width: 1000px;
+	text-align: center;
+	padding-top: 20px;
+	font-size: 15px;
+	cursor: pointer;
+}
+
+.curBox {
+	border-bottom: 1px solid gray;
+	margin-right: 15px;
+	cursor: pointer;
+	font-weight: bold;
+	color: #632A7E;
+}
+
+.numBox {
+	margin-right: 15px;
+}
+
+.numBox:hover {
+	color: #EDA900;
+}
+
+h3 i {
+	font-size: 20px;
+}
+
+.jyy button {
+	border: 1px solid gray;
+	height: 30px;
+	padding: 5px;
+	background: none;
+	margin-top: 20px;
+	/* margin-bottom: 20px; */
+	margin-right: 5px;
+	font-size: 17px;
+}
+
+.jyy>button:hover {
+	background: #9565A4;
+	color: white;
+	font-weight: bold;
+}
+
+.edit {
+	display: none;
+	margin-top: 10px;
+}
+
+#newGroupName {
+	height: 25px;
+	outline: 0;
+	/* margin-bottom: 10px; */
+}
+
+#saveGroup {
+	background: none;
+	border: none;
+	height: 25px;
+	width: 25px;
+	outline: 0;
+}
+
+#saveGroup>i {
+	font-size: 20px;
+}
+
+#saveGroup:hover {
+	cursor: pointer;
+	color: #FFD228;
+	font-weight: bold;
+}
+
+#edit-reset {
+	background: none;
+	border: none;
+	height: 25px;
+	width: 25px;
+	outline: 0;
+}
+
+#edit-reset>i {
+	font-size: 20px;
+}
+
+#edit-reset:hover {
+	cursor: pointer;
+	color: #FFD228;
+	font-weight: bold;
+}
+
+#newGroupAdd {
+	margin-top: 10px;
+}
+
+#groupAdd {
+	float: right;
+	border: 1px solid gray;
+	height: 30px;
+	padding: 5px;
+	background: #9565A4;
+	color: white;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: 5px;
+	font-size: 17px;
+	font-weight: bold;
+}
+
+/* privateAddr */
+
+/* Animation Keyframes */
+@keyframes scale_header { 
+	0% {
+		max-height: 0px;
+		margin-bottom: 0px;
+		opacity: 0;
+	}
+
+	100% {
+	max-height: 117px;
+	margin-bottom: 25px;
+	opacity:1;
+	}
+}
+
+@keyframes input_opacity {
+	0% {
+		transform: translateY(-10px);
+		opacity: 0
+	}
+
+	100% {
+		transform: translateY(0px);
+		opacity: 1
+	}
+}
+
+@
+keyframes text_opacity {
+	0% {
+		color: transparent;
+	}
+}
+
+@keyframes error_before {
+	0% {
+		height: 5px;
+		background: rgba(0, 0, 0, 0.156);
+		color: transparent;
+	}
+
+	10% {
+		height: 117px;
+		background: #FFFFFF;
+		color:#C62828
+	}
+
+	90% {
+		height: 117px;
+		background: #FFFFFF;
+		color: #C62828
+	}
+	
+	100% {
+		height: 5px;
+		background: rgba(0,0,0,0.156);
+		color: transparent;
+	}
+}
+
+.privateAddr-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: relative;
+	width: 800px;
+	height: auto;
+	padding: 5px;
+	box-sizing: border-box;
+	margin: 0px auto;
+}
+
+.privateAddr-title {
+	position: relative;
+	width: 100%;
+	padding: 10px;
+	margin: 40px 0 10px 0;
+	box-sizing: border-box;
+	border-radius: 3px;
+	background: #FAFAFA;
+	overflow: hidden;
+	animation: input_opacity 0.2s cubic-bezier(.55, 0, .1, 1);
+	box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0
+		rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
+.privateAddr-title>h2 {
+	position: relative;
+	height: 100px;
+	padding: 10px;
+	padding-top: 30px;
+	margin: -10px -10px 25px -10px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	background: #9565A4;
+	font-family: 'Roboto', sans-serif;
+	font-size: 1.3rem;
+	color: #FAFAFA;
+	animation: scale_header 0.6s cubic-bezier(.55, 0, .1, 1), text_opacity
+		1s cubic-bezier(.55, 0, .1, 1);
+	box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px
+		rgba(0, 0, 0, 0.12), 0px 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
+.privateAddr-title>h2:before {
+	content: '';
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	width: 100%;
+	height: 5px;
+	padding: 10px;
+	margin: -30px 0 0 -10px;
+	box-sizing: border-box;
+	background: rgba(0, 0, 0, 0.156);
+	font-family: 'Roboto', sans-serif;
+	font-size: 0.9rem;
+	color: transparent;
+	z-index: 5;
+}
+
+.privateAddr-title>h2 {
+	margin: 10px 0 10px 0;
+}
+
+.privateAddr-form {
+	padding: 15px;
+	box-sizing: border-box;
+}
+
+.privateAddr-input {
+	position: relative;
+	width: 90%;
+	padding: 10px 5px;
+	margin: 0 0 25px 0;
+	border: none;
+	border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+	box-sizing: border-box;
+	background: transparent;
+	font-size: 1rem;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 500;
+	opacity: 1;
+	animation: input_opacity 0.8s cubic-bezier(.55, 0, .1, 1);
+	transition: border-bottom 0.2s cubic-bezier(.55, 0, .1, 1);
+}
+
+.privateAddr-input:focus {
+	outline: none;
+	border-bottom: 2px solid #EDA900;
+}
+
+.button_on {
+	width: 70px;
+	height: 50px;
+	border: none;
+	background: none;
+	font-size: 20px;
+	outline: 0;
+	color: #EDA900;
+}
+
+.button_on:hover {
+	color: #9565A4;
+	cursor: pointer;
+	outline: 0;
+}
+
+.button-container {
+	float: right;
+	margin-right: 70px;
+}
+
+.privateAddr-button {
+	padding: 10px;
+	border: none;
+	border-radius: 3px;
+	background: transparent;
+	font-family: 'Roboto', sans-serif;
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: black;
+	cursor: pointer;
+	opacity: 1;
+	animation: input_opacity 0.8s cubic-bezier(.55, 0, .1, 1);
+	transition: background 0.2s ease-in-out;
+	padding: 10px;
+}
+
+.privateAddr-button.raised {
+	padding: 5px 10px;
+	color: #FAFAFA;
+	background: #9565A4;
+	box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.137255), 0px 1px 5px 0px
+		rgba(0, 0, 0, 0.117647), 0px 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
+.privateAddr-button:hover {
+	background: #EDA900;
+	color: white;
+	font-weight: bold;
+}
+
+.privateAddr-button.raised:hover {
+	background: #9565A4;
+}

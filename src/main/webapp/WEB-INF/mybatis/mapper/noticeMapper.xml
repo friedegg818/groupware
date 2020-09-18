@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="notice">
+	<select id="seq" resultType="Integer">
+		SELECT seq_notice.NEXTVAL FROM dual
+	</select>
+	
+	<insert id="insertNotice" parameterType="com.of.notice.Notice">
+		INSERT INTO notice(noticeNum, writer, title, content, hitCount, created) 
+				VALUES(#{noticeNum}, #{writer}, #{title},#{content}, 0, SYSDATE)
+	</insert>
+
+	<sql id="where-list">
+		<if test="condition=='title' ">
+			INSTR(title, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='content' ">
+			DBMS_LOB.INSTR(content, #{keyword}) &gt; 0 
+		</if>
+		<if test="condition=='writer' ">
+			name=#{keyword}
+		</if>
+		<if test="condition=='created' ">
+			( TO_CHAR(created, 'YYYY-MM-DD') = #{keyword}
+				OR TO_CHAR(created, 'YYYYMMDD') = #{keyword} )
+		</if>
+	</sql>
+	
+	<!-- 데이터개수  -->
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM notice
+		JOIN employee ON writer=empNo
+		<where>
+			<if test="keyword != null and keyword!=''  ">
+				<include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<!-- 리스트 -->
+	<select id="listNotice" parameterType="map" resultType="com.of.notice.Notice">
+		SELECT n.noticeNum, writer, name, title, hitCount,created ,dType, pType
+		FROM notice n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		<where>
+			<if test="keyword != null and keyword != ''">
+				<include refid="where-list"/>
+			</if>
+		</where>
+		ORDER BY noticeNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	 </select>
+
+    <!-- 글보기 -->
+    <select id="readNotice" parameterType="Integer" resultType="com.of.notice.Notice">
+		SELECT noticeNum, writer, name, title, content, created, hitCount,dType, pType
+		FROM notice n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		WHERE noticeNum = #{noticeNum}
+	</select>
+
+	<!-- 조회수 증가 -->
+	<update id="updateHitCount" parameterType="Integer">
+		UPDATE notice SET hitCount=hitCount+1 WHERE noticeNum = #{noticeNum}
+	</update>
+
+	<!-- 이전글 -->
+	<select id="preReadNotice" parameterType="map" resultType="com.of.notice.Notice">
+		SELECT noticeNum, name, title, dType, pType
+		FROM notice n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (noticeNum &gt; #{noticeNum})
+		</where>
+		ORDER BY noticeNum ASC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+
+    <!-- 다음글 -->
+    <select id="nextReadNotice" parameterType="map" resultType="com.of.notice.Notice">
+		SELECT noticeNum, name, title, dType, pType
+		FROM notice n
+		JOIN employee e ON n.writer=e.empNo
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		<where>
+			<if test="keyword != null and keyword != '' ">
+				<include refid="where-list"/>
+			</if>
+			AND (noticeNum &lt; #{noticeNum})
+		</where>
+		ORDER BY noticeNum DESC
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+    
+	<!-- 수정 -->
+	<update id="updateNotice" parameterType="com.of.notice.Notice">
+		UPDATE notice SET title=#{title},
+				content=#{content}
+		WHERE noticeNum=#{noticeNum}
+	</update>
+    
+	<!-- 삭제 -->
+	<delete id="deleteNotice" parameterType="Integer">
+		DELETE FROM notice WHERE noticeNum=#{noticeNum}
+	</delete>
+	
+	<!-- 파일 -->
+	<insert id="insertFile" parameterType="com.of.notice.Notice">
+		INSERT INTO noticeFile(fileNum, noticeNum, saveFilename, 
+					originalFilename) VALUES
+				(seq_noticeFile.NEXTVAL, #{noticeNum}, #{saveFilename},
+					#{originalFilename})
+	</insert>
+	
+	<select id="listFile" parameterType="Integer" resultType="com.of.notice.Notice">
+		SELECT fileNum, noticeNum, saveFilename, originalFilename 
+		FROM noticeFile
+		WHERE noticeNum=#{noticeNum}    
+	</select>
+	
+	<select id="readFile" parameterType="Integer" resultType="com.of.notice.Notice">
+		SELECT fileNum, noticeNum, saveFilename, originalFilename 
+		FROM noticeFile
+	    WHERE fileNum=#{fileNum}      
+	</select>
+	
+	<delete id="deleteFile" parameterType="map">
+		DELETE FROM noticeFile WHERE ${field} = #{num}
+	</delete>
+	
+	<!-- 댓글/답글 등록 -->
+	<insert id="insertReply" parameterType="com.of.notice.NoticeReply">
+		INSERT INTO noticeReply (noticeNum, replyNum, replyWriter, content, created) VALUES (#{noticeNum}, seq_noticeReply.NEXTVAL, #{replyWriter}, #{content}, SYSDATE)
+	</insert>
+	
+	<!-- 게시글의 댓글 개수 -->
+	<select id="replyCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0) 
+		FROM noticeReply 
+		WHERE noticeNum=#{noticeNum}
+	</select>
+	
+	<!-- 게시글의 댓글 리스트 -->
+	<select id="listReply" parameterType="map" resultType="com.of.notice.NoticeReply">
+		SELECT replyNum, r.replyWriter, name, content, created, dType, pType
+		FROM noticeReply r 
+		JOIN employee e ON r.replyWriter=e.empNo
+		JOIN history h ON h.empNo = e.empNo
+		JOIN position pos ON pos.pCode=h.pCode
+		JOIN dept dpt ON h.dCode=dpt.dCode
+		WHERE noticeNum = #{noticeNum} 
+		ORDER BY replyNum DESC 
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteReply" parameterType="map">
+		DELETE FROM noticeReply WHERE replyNum=#{replyNum}
+	</delete>
+	
+</mapper>

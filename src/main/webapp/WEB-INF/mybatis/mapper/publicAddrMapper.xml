@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="publicAddr">
+	<!-- 공용 주소록 리스트 -->
+	<select id="listPublicAddr"  resultType="com.of.publicAddr.PublicAddr" parameterType="map">
+		SELECT pu.empNo, name, TO_CHAR(birth, 'YYYY-MM-DD') birth, tel, email, TO_CHAR(enterDate, 'YYYY-MM-DD') enterDate, d.dCode, d.dType, p.pCode, p.pType, pf.imageFilename
+		FROM publicAddr pu
+		JOIN employee e ON e.empNo = pu.empNo
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+        JOIN profile pf ON pf.empNo = e.empNo
+		<where>
+			<if test="keyword!=null and keyword !='' ">
+				<include refid="where-list"/>
+			</if>
+			<if test="kor != null and kor != '' and kor2 != null and kor2 != '' ">
+				AND ( name &gt;= #{kor} AND name &lt; #{kor2} )
+			</if>
+			AND enable = 1
+		</where>
+		ORDER BY empNo DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<!-- 데이터 개수 -->
+	<select id="dataCount" resultType="Integer" parameterType="map" >
+		SELECT NVL(COUNT(*),0) 
+		FROM publicAddr pu
+		JOIN employee e ON e.empNo = pu.empNo
+		JOIN history h ON e.empNo = h.empNo
+        JOIN position p ON p.pCode = h.pCode
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN career c ON c.empNo = e.empNo
+		<where>
+			<if test="keyword!=null and keyword !='' ">
+				<include refid="where-list"/>
+			</if>
+			<if test="kor != null and kor != '' and kor2 != null and kor2 != '' ">
+				AND ( name &gt;= #{kor} AND name &lt; #{kor2} )
+			</if>
+			AND enable = 1
+		</where>
+	</select>
+	
+	<!-- 사원 리스트 검색 -->
+	<sql id="where-list">
+		<if test="condition=='all' ">
+			(INSTR(name, #{keyword}) &gt; 0 
+			OR TO_CHAR(birth, 'YYYY-MM') = #{keyword}
+            OR TO_CHAR(birth, 'YYYY-MM-DD') = #{keyword}
+            OR TO_CHAR(birth, 'YYYY') = #{keyword}
+            OR TO_CHAR(birth, 'YYYYMM') = #{keyword}
+            OR TO_CHAR(birth, 'YYYYMMDD') = #{keyword}
+			OR REPLACE(tel, '-', '') like '%' ||  #{keyword} || '%'
+			OR INSTR(dType, #{keyword}) &gt; 0
+			OR INSTR(pType, #{keyword}) &gt; 0)
+		</if>
+		<if test="condition=='name' ">
+			INSTR(name, #{keyword}) &gt; 0
+		</if>
+		<if test="condition=='birth' ">
+			( TO_CHAR(birth, 'YYYY-MM') = #{keyword}
+                OR TO_CHAR(birth, 'YYYY-MM-DD') = #{keyword}
+                OR TO_CHAR(birth, 'YYYY') = #{keyword}
+                OR TO_CHAR(birth, 'YYYYMM') = #{keyword}
+                OR TO_CHAR(birth, 'YYYYMMDD') = #{keyword} )
+		</if>
+		<if test="condition=='tel' ">
+			REPLACE(tel, '-', '') like '%' || #{keyword} || '%'
+		</if>
+		<if test="condition=='dType' ">
+			INSTR(dType, #{keyword}) &gt; 0 
+		</if>
+		<if test="condition=='pType' ">
+			INSTR(pType, #{keyword}) &gt; 0
+		</if>
+	</sql>
+	
+	<select id="readPublicAddr" parameterType="Integer" resultType="com.of.employee.Employee">
+		SELECT pu.empNo, name, TO_CHAR(birth, 'YYYY-MM-DD') birth, tel, email, addr, d.dCode, dType, p.pCode, pType,
+			TO_CHAR(enterDate, 'YYYY-MM-DD') enterDate, TO_CHAR(exitDate, 'YYYY-MM-DD') exitDate, TO_CHAR(apDate, 'YYYY-MM-DD') apDate, memo
+		FROM publicAddr pu
+		JOIN employee e ON e.empNo = pu.empNo
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+        WHERE employeeNum = #{employeeNum} AND enable = 1
+	</select>
+	
+	<!-- 공용 주소록 내보내기 -->
+	<select id="listAllPublicAddr" parameterType="String" resultType="com.of.publicAddr.PublicAddr">
+		SELECT pu.empNo, name, TO_CHAR(birth, 'YYYY-MM-DD') birth, tel, email, d.dType, p.pType
+		FROM publicAddr pu
+		JOIN employee e ON e.empNo = pu.empNo
+		JOIN history h ON e.empNo = h.empNo
+        JOIN dept d ON d.dCode = h.dCode
+        JOIN position p ON p.pCode = h.pCode
+        WHERE enable = 1
+		ORDER BY pu.empNo
+	</select>
+</mapper>

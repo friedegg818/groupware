@@ -1,0 +1,107 @@
+﻿@charset "UTF-8";
+
+.footer-detail ::-webkit-scrollbar {
+  width: 10px;
+}
+.footer-detail ::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+.footer-detail ::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #9565A4;
+}
+.footer-detail ::-webkit-scrollbar-button {
+  width: 20px;
+  height: 10px;
+}
+
+.footer {
+	background: transparent;
+ 	position: fixed;
+ 	left: 0;
+    bottom: 0;
+}
+.footer-icon {  	
+	font-size: 30px;
+	color: /* fuchsia; */#632A7E; 
+	padding: 10px 0 10px 0 ;
+	text-align: center;
+	width: 85px;
+	
+}
+
+
+.footer-detail{
+	background: /* aqua;  */ /* #EDE0EE; */#632A7E; 
+	width: 300px; 
+	height: 410px; 
+	display: none;
+	border-radius: 20px;
+}
+
+
+
+#footericon {
+	height:60px;
+	line-height:60px;
+	border-radius:20px 20px 0 0;
+	background: /* gold; */ /* #CDBBDC; */	
+}
+
+#footericon a, a:active{
+	color: DARKSLATEGRAY;
+}
+
+.fixedIcon{
+
+	font-size: 30px;
+	margin-left:25px;
+	margin-right: 25px;
+}
+
+.fixedIcon i{
+	color: white;
+
+}
+
+.footer-profile{
+	position: absolute;
+
+}
+
+.fp-dept{
+	font-size:19px;
+	font-weight:600;
+	padding: 10px 0 0 10px;
+	color:/*  DARKSLATEGRAY; */ white;
+}
+
+
+
+
+.fp-person{
+	 padding: 5px 0 5px 20px;
+	 font-size: 16.5px;
+	 color:/*  DARKSLATEGRAY; */ white;
+}
+
+.fp-person p{
+	padding-bottom:5px;	
+}
+
+.fp-person i {
+	color: 9B9B9B;
+}
+
+.fp-person a {
+	color: /*  DARKSLATEGRAY; */  /* gold;  */ white;
+}
+
+.footer-chatTB, .footer-messageTB{
+	display: none;
+}
+
+.chat-title, .msg-title{
+	padding-left: 10px;
+	padding-top: 10px
+}

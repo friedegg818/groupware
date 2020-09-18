@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="scheduler">
+	<insert id="insertScheduler" parameterType="com.of.scheduler.Scheduler">
+		INSERT INTO scheduler(schNum, writer, dCode, title, category, content, allDay, startDate, endDate, startTime, endTime, created) 
+			VALUES (seq_scheduler.NEXTVAL, #{writer}, #{dCode}, #{title}, 
+					#{category, jdbcType=VARCHAR},
+					#{content, jdbcType=VARCHAR},
+					#{allDay, jdbcType=VARCHAR},
+					#{startDate, jdbcType=VARCHAR},
+					#{endDate, jdbcType=VARCHAR},
+					#{startTime, jdbcType=VARCHAR},
+					#{endTime, jdbcType=VARCHAR},
+					SYSDATE			
+			)
+	</insert>
+	
+	<!-- 월별일정 -->
+	<select id="listMonthScheduler" parameterType="map" resultType="com.of.scheduler.Scheduler">
+		SELECT schNum, writer, name, s.dCode, title, category, category color, content, allDay, startDate, endDate, startTime, endTime, created
+		FROM scheduler s
+		JOIN employee e ON writer=e.empNo
+		JOIN history h ON e.empNo=h.empNo
+		<where>
+	
+			<choose>
+				<when test="group=='#D0A9F5'">
+					writer = #{writer} AND category=#{group}
+				</when>
+				<when test="group=='#AED6F1 '">
+					category=#{group}
+				</when>
+				<when test="group=='#F5A9A9'">
+					category=#{group} and s.dCode=#{dCode}
+				</when>
+				<when test="group=='all'">
+					(category='#D0A9F5' AND writer = #{writer}) OR (category='#AED6F1 ' )
+					OR (category='#F5A9A9' AND  s.dCode=#{dCode} )
+				</when>
+			</choose>
+			
+			<![CDATA[
+				AND ( (startDate>=#{start} AND startDate<=#{end})
+					OR (endDate>=#{start} AND endDate<=#{end}) )
+			]]>             
+		</where>
+		ORDER BY startDate ASC, schNum DESC
+	</select>
+	
+	<!-- 일정 상세 정보 -->
+	<select id="readScheduler" parameterType="Integer" resultType="com.of.scheduler.Scheduler">
+		SELECT schNum, writer, name, s.dCode, title, category, category color, content, allDay, startDate, endDate, 
+			startTime, endTime, created
+		FROM scheduler s
+		JOIN employee e ON writer=e.empNo
+		JOIN history h ON e.empNo=h.empNo
+		WHERE schNum=#{schNum}
+	</select>
+	
+	<!-- 일정수정 -->
+	<update id="updateScheduler" parameterType="com.of.scheduler.Scheduler">
+		UPDATE scheduler SET 
+			title=#{title},
+			category=#{category, jdbcType=VARCHAR},
+			content=#{content, jdbcType=VARCHAR},
+			allDay=#{allDay, jdbcType=VARCHAR},
+			startDate=#{startDate, jdbcType=VARCHAR},
+			endDate=#{endDate, jdbcType=VARCHAR},
+			startTime=#{startTime, jdbcType=VARCHAR},
+			endTime=#{endTime, jdbcType=VARCHAR}
+		WHERE schNum=#{schNum}	AND writer=#{writer}	
+	</update>
+	
+	<!-- 일정 삭제 -->
+	<delete id="deleteScheduler" parameterType="Integer">
+		DELETE FROM scheduler WHERE schNum=#{schNum}
+	</delete>
+		
+</mapper>

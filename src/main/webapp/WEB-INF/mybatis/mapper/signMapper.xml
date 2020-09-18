@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sign">
+	<select id="seq" resultType="Integer">
+		SELECT seq_sign.NEXTVAL FROM dual
+	</select>
+
+	<insert id="insertSign" parameterType="com.of.sign.Sign">
+		INSERT INTO sign( sNum,	stNum, sDept, sDate, sSubject, sContent, empNo, sEndStep, sCurrStep, startDay)
+		VALUES( #{snum}, #{stnum}, #{sdept} , SYSDATE, #{ssubject}, #{scontent}, #{empNo}, #{sendStep}, 1, #{startDay})
+	</insert>
+
+	<insert id="insertSignFile" parameterType="com.of.sign.Sign">
+		INSERT INTO	signFile(sfNum, sNum, sfOriginalfilename, sfSavefilename)
+		VALUES( seq_signFile.NEXTVAL, #{snum}, #{sfOriginalFilename,jdbcType=VARCHAR}, #{sfSaveFilename,jdbcType=VARCHAR} )
+	</insert>
+
+	<insert id="insertSignPermission" parameterType="com.of.sign.Sign">
+		INSERT INTO permission( pNum, pStNum, pEmpNo2, pEmpNo3, pEmpNo4 )
+		<choose>
+			<when test="pEmpNo4 != 0 ">
+				VALUES( seq_permission.NEXTVAL, #{snum}, #{pEmpNo2},#{pEmpNo3},#{pEmpNo4} )
+			</when>
+			<when test="pEmpNo3 != 0 ">
+				VALUES( seq_permission.NEXTVAL, #{snum}, #{pEmpNo2},#{pEmpNo3}, null )
+			</when>
+			<when test="pEmpNo2 != 0 ">
+				VALUES( seq_permission.NEXTVAL, #{snum}, #{pEmpNo2}, null, null )
+			</when>
+		</choose>
+	</insert>
+	
+
+	<select id="emplist" resultType="com.of.sign.Sign">
+		SELECT e.empNo, name, tel, email, c.enterDate, dType, pType, h.pCode
+		FROM employee e
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+		JOIN dept d ON d.dCode = h.dCode
+		JOIN position p ON p.pCode = h.pCode
+		WHERE enable = 1
+		ORDER BY dType ASC, h.pCode ASC
+	</select>
+
+	<select id="readSign" parameterType="map" resultType="com.of.sign.Sign">
+		SELECT sSubject, sContent,sDate ,startDay, p.pstNum, pempNo2, pempNo3, pempNo4, sCurrStep
+		FROM permission p
+		JOIN sign s ON s.snum = p.pstNum
+		WHERE p.pstNum = #{valueSnum}
+	</select>
+	
+	<select id="readWriter" parameterType="Integer" resultType="com.of.sign.Sign">
+		SELECT s.empno, name, sdept, dType, pType  FROM sign s
+			JOIN employee e ON s.empno = e.empno
+			JOIN history h ON e.empNo = h.empNo
+			JOIN career c ON c.empNo = h.empNo
+			JOIN dept d ON d.dCode = h.dCode
+			JOIN position p ON p.pCode = h.pCode
+		WHERE s.snum = #{valueSnum}
+	</select>
+
+
+	<select id="readEmp" parameterType="Integer" resultType="com.of.sign.Sign">
+		SELECT e.empno, name, dType, pType from employee e
+			JOIN history h ON e.empNo = h.empNo
+			JOIN career c ON c.empNo = h.empNo
+			JOIN dept d ON d.dCode = h.dCode
+			JOIN position p ON p.pCode = h.pCode
+		WHERE e.empno = #{empNo}
+	</select>
+
+
+	<sql id="where-list">
+		<choose>
+			<when test="condition == 'title'">
+				INSTR(sSubject, #{keyword}) &gt; 0
+			</when>
+			<when test="condition == 'content'">
+				INSTR(sContent, #{keyword}) &gt; 0
+			</when>
+			<when test="condition == 'created' ">
+				( TO_CHAR(sDate, 'YYYYMMDD') = #{keyword}
+				OR TO_CHAR(sDate, 'YYYY-MM-DD') = #{keyword} )
+			</when>
+		</choose>
+	</sql>
+	
+	<sql id="val-list">
+		<choose>
+			<when test="val == 'fini' ">
+				sCurrStep = sEndStep AND empNo = #{empNo}  AND sCurrStep != 0
+			</when>
+			<when test="val == 'wait' ">
+				s.empNo = #{empNo}  AND sCurrStep != 0
+			</when>
+		</choose>
+	</sql>
+
+	<select id="dataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM sign s
+		<where>
+			<if test="val != null and val != '' ">
+				<include refid="val-list"/>
+			</if>
+		</where>
+	</select>
+	
+
+	<select id="listSign" parameterType="map" resultType="com.of.sign.Sign">
+		SELECT sNum, stNum ,sSubject, sContent, s.empNo, name ,sDate, sCurrStep, sEndStep, dType, pType
+		FROM sign s
+		JOIN permission p ON s.snum = p.pstNum
+		JOIN employee e ON s.empno = e.empno
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+		JOIN dept d ON d.dCode = h.dCode
+		JOIN position p ON p.pCode = h.pCode
+		<where>
+			<if test="val != null and val != '' ">
+				<include refid="val-list"/>
+			</if>
+			AND sEndStep != 0  AND sCurrStep != 0 AND sEndStep != sCurrStep
+		</where>
+		ORDER BY sNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="listFile" parameterType="Integer" resultType="com.of.sign.Sign">
+		SELECT sfNum, sNum, sfSaveFilename, sfOriginalFilename
+		FROM signFile
+		WHERE sNum = #{snum}
+	</select>
+	
+	<select id="readFile" parameterType="Integer" resultType="com.of.sign.Sign">
+		SELECT sfNum, sNum, sfSaveFilename, sfOriginalFilename
+		FROM signFile
+		WHERE sfNum = #{sfNum}
+	</select>
+
+<!-- ==============================================수신대기함============================================== -->
+	<select id="stepList" parameterType="map" resultType="com.of.sign.Sign">
+		SELECT snum,stNum, s.empno, name, dType, pType,sSubject, sContent, sCurrStep,sDate, pEmpNO2 pEmpNO
+			FROM sign s
+				JOIN permission p ON s.snum = p.pstNum
+				JOIN employee e ON s.empno = e.empno
+				JOIN history h ON e.empNo = h.empNo
+				JOIN career c ON c.empNo = h.empNo
+				JOIN dept d ON d.dCode = h.dCode
+				JOIN position p ON p.pCode = h.pCode
+			<where>
+			pempNo2 = #{empNo} and sCurrStep = 1
+			</where>
+		UNION ALL
+		SELECT snum,stNum, s.empno, name, dType, pType,sSubject, sContent, sCurrStep, sDate,pEmpNO3
+			FROM sign s
+				JOIN permission p ON s.snum = p.pstNum
+				JOIN employee e ON s.empno = e.empno
+				JOIN history h ON e.empNo = h.empNo
+				JOIN career c ON c.empNo = h.empNo
+				JOIN dept d ON d.dCode = h.dCode
+				JOIN position p ON p.pCode = h.pCode
+			<where>
+			pempNo3 = #{empNo} and sCurrStep = 2
+			</where>
+		UNION ALL
+		SELECT snum,stNum, s.empno, name, dType, pType,sSubject, sContent, sCurrStep, sDate,pEmpNO4
+			FROM sign s
+				JOIN permission p ON s.snum = p.pstNum
+				JOIN employee e ON s.empno = e.empno
+				JOIN history h ON e.empNo = h.empNo
+				JOIN career c ON c.empNo = h.empNo
+				JOIN dept d ON d.dCode = h.dCode
+				JOIN position p ON p.pCode = h.pCode
+			<where>
+			pempNo4 = #{empNo} and sCurrStep = 3
+			</where>
+			ORDER BY sNum DESC
+			OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="stepCount" parameterType="map" resultType="Integer">
+	SELECT sum(cnt) FROM(
+		SELECT COUNT(*) cnt 
+			FROM sign s
+				JOIN permission p ON s.snum = p.pstNum
+				JOIN employee e ON s.empno = e.empno
+				JOIN history h ON e.empNo = h.empNo
+				JOIN career c ON c.empNo = h.empNo
+				JOIN dept d ON d.dCode = h.dCode
+				JOIN position p ON p.pCode = h.pCode
+			<where>
+			pempNo2 = #{empNo} and sCurrStep = 1
+			</where>
+		UNION ALL
+		SELECT COUNT(*) cnt
+			FROM sign s
+				JOIN permission p ON s.snum = p.pstNum
+				JOIN employee e ON s.empno = e.empno
+				JOIN history h ON e.empNo = h.empNo
+				JOIN career c ON c.empNo = h.empNo
+				JOIN dept d ON d.dCode = h.dCode
+				JOIN position p ON p.pCode = h.pCode
+			<where>
+			pempNo3 = #{empNo} and sCurrStep = 2
+			</where>
+		UNION ALL
+		SELECT COUNT(*) cnt
+			FROM sign s
+				JOIN permission p ON s.snum = p.pstNum
+				JOIN employee e ON s.empno = e.empno
+				JOIN history h ON e.empNo = h.empNo
+				JOIN career c ON c.empNo = h.empNo
+				JOIN dept d ON d.dCode = h.dCode
+				JOIN position p ON p.pCode = h.pCode
+			<where>
+			pempNo4 = #{empNo} and sCurrStep = 3
+			</where>
+			) a
+	</select>
+	
+<!-- ==============================================결재 승인============================================== -->	
+	<update id="updateScurrStep" parameterType="Integer">
+		UPDATE sign 
+		SET sCurrStep = sCurrStep + 1
+		WHERE sNum = #{sNum}
+	</update>
+<!-- ==============================================결재완료함============================================== -->
+	<select id="finishSignList" resultType="com.of.sign.Sign">
+		SELECT s.sNum,stNum, name, sDept, sDate, startDay, sSubject, sContent, sEndStep, sCurrStep, s.empNo, pEmpNo2, pEmpNo3, pEmpNo4, dType, pType
+		FROM sign s
+		JOIN permission p ON s.sNum = p.pstNum
+		JOIN employee e ON s.empno = e.empno
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+		JOIN dept d ON d.dCode = h.dCode
+		JOIN position p ON p.pCode = h.pCode
+		<where>
+			sEndStep = sCurrStep AND s.empNo = #{empNo} AND sCurrStep != 0
+		</where>
+		ORDER BY s.sNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+<!-- ==============================================결재함 통합 검색============================================== -->
+	<select id="searchlist" parameterType="map" resultType="com.of.sign.Sign">
+		SELECT s.sNum,stNum, name, sDept, sDate, startDay, sSubject, sContent, sEndStep, sCurrStep, s.empNo, pEmpNo2, pEmpNo3, pEmpNo4, dType, pType
+		FROM sign s
+		JOIN permission p ON s.sNum = p.pstNum
+		JOIN employee e ON s.empno = e.empno
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+		JOIN dept d ON d.dCode = h.dCode
+		JOIN position p ON p.pCode = h.pCode
+		WHERE
+		<choose>
+			<when test="condition == 'title'">
+				INSTR(sSubject, #{keyword}) &gt; 0
+			</when>
+			<when test="condition == 'content'">
+				INSTR(sContent, #{keyword}) &gt; 0
+			</when>
+			<when test="condition == 'created' ">
+			
+				( TO_CHAR(sDate, 'YYYYMMDD') = #{keyword}
+				OR TO_CHAR(sDate, 'YYYY-MM-DD') = #{keyword} )
+			</when>
+		</choose>
+			AND s.empNo = #{empNo}
+	</select>
+	
+	<select id="searchDataCount" parameterType="map" resultType="Integer">
+		SELECT NVL(COUNT(*),0) FROM sign
+		WHERE
+			<choose>
+			<when test="condition == 'title'">
+				INSTR(sSubject, #{keyword}) &gt; 0
+			</when>
+			<when test="condition == 'content'">
+				INSTR(sContent, #{keyword}) &gt; 0
+			</when>
+			<when test="condition == 'created' ">
+				( TO_CHAR(sDate, 'YYYYMMDD') = #{keyword}
+				OR TO_CHAR(sDate, 'YYYY-MM-DD') = #{keyword} )
+			</when>
+		</choose>
+			AND empNo = #{empNo}
+	</select>
+	
+<!-- ==============================================반려함 관련============================================== -->
+	<insert id="insertReturnSign" parameterType="map">
+		INSERT INTO returnSign(rNum, rsNum, writer, rReason)
+		 VALUES (SEQ_ReturnSign.NEXTVAL, #{sNum}, #{writer}, #{rReason})
+	</insert>
+	<update id="updateScurrStepReturn" parameterType="Integer">
+		UPDATE sign SET sCurrStep = 0
+		WHERE sNum = #{sNum}
+	</update>
+	
+	<select id="returnSignList" parameterType="map" resultType="com.of.sign.Sign">
+		SELECT rNum, rsNum,stNum ,writer, name , sSubject, sContent, sDate, sNum, dType, pType
+		FROM returnSign r
+		JOIN sign s ON r.rsNum = s.sNum
+		JOIN permission p ON s.sNum = p.pstNum
+		JOIN employee e ON s.empno = e.empno
+		JOIN history h ON e.empNo = h.empNo
+		JOIN career c ON c.empNo = h.empNo
+		JOIN dept d ON d.dCode = h.dCode
+		JOIN position p ON p.pCode = h.pCode
+		WHERE writer = #{empNo}
+		ORDER BY rNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="returnDataCount" parameterType="Integer" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM returnSign
+		WHERE writer = #{empNo} 
+	</select>
+	
+	
+	<select id="readReturnSign" parameterType="map" resultType="com.of.sign.Sign">
+		SELECT sSubject, sContent, sDate ,startDay, p.pstNum, pempNo2, pempNo3, pempNo4, sCurrStep, rReason
+		FROM permission p
+		JOIN sign s ON s.snum = p.pstNum
+		JOIN returnSign r ON s.sNum = r.rsNum 
+		WHERE p.pstNum = #{valueSnum}
+	</select>
+	
+<!-- ==============================================임시보관함============================================== -->
+	
+	<insert id="insertStorage" parameterType="com.of.sign.Sign">
+		INSERT INTO storage( sNum,	stNum, sDept, sDate, sSubject, sContent, empNo, sEndStep, sCurrStep, startDay, sfOriginalfilename, sfSavefilename ,pEmpNo2, pEmpNo3, pEmpNo4 )
+		VALUES( seq_storage.NEXTVAL, #{stnum}, #{sdept} , SYSDATE, #{ssubject}, #{scontent}, #{empNo}, #{sendStep}, 1, #{startDay} ,#{sfOriginalFilename,jdbcType=VARCHAR},	#{sfSaveFilename,jdbcType=VARCHAR}, #{pEmpNo2},#{pEmpNo3},#{pEmpNo4} )
+	</insert>
+	
+	<select id="listStorage" parameterType="map" resultType="com.of.sign.Sign">
+		SELECT sNum, stNum, sDate, startDay, sSubject, sContent, sEndStep, sCurrStep, empNo, sfOriginalFilename, sfSaveFilename, pempNo2, pempNo3, pempNo4
+		FROM storage
+		WHERE empNo = #{empNo}
+		ORDER BY sNum DESC
+		OFFSET #{offset} ROWS FETCH FIRST #{rows} ROWS ONLY
+	</select>
+	
+	<select id="storageDataCount" parameterType="Integer" resultType="Integer">
+		SELECT NVL(COUNT(*),0) FROM storage
+		WHERE empNo = #{empNo}
+	</select>
+	
+	<select id="readStorage" parameterType="map" resultType="com.of.sign.Sign">
+		SELECT sNum, stNum, sDate, startDay, sSubject, sContent, sEndStep, sCurrStep, empNo, sfOriginalFilename, sfSaveFilename, pempNo2, pempNo3, pempNo4
+		FROM storage
+		WHERE sNum = #{valueSnum}
+	</select>
+	
+	<delete id="deleteStorage" parameterType="Integer">
+		DELETE FROM storage WHERE sNum = #{hiddenSnum}
+	</delete>
+</mapper>

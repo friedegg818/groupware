@@ -1,0 +1,163 @@
+﻿@charset "UTF-8";
+
+.header {
+	clear: both;
+	height: 65px;
+	min-height: 65px;
+	text-align: left;
+	background: #632A7E;
+}
+
+.sidebar {
+	clear: both;
+	width: 85px;
+	min-height: 872px;
+	height: auto;
+	float: left;
+	overflow: hidden;
+	background: #F2F2F2;
+	position: relative; 
+}
+
+/* header */
+.header-left {
+	width: 50%;
+	height: 65px;
+	float: left;
+}
+
+.header-right {
+	width: 50%;
+	height: 65px;
+	float: left;
+}
+
+.header-menu{
+	height: 65px;
+	float: right;
+}
+
+.header-menu i {
+	clear: both;
+	font-size: 25px;
+	margin-right: 10px;
+	margin-left: 10px;
+	color: white;
+	margin-top: 20px;
+}
+
+#headerMail {
+	font-size: 15px;
+}
+
+/*sidebar*/
+ul {
+	list-style: none;
+}
+
+a {
+	text-decoration: none;
+}
+
+.menu-bar {
+	width: 100%;
+	max-width: 350px;
+}
+
+.menu-bar i{
+	font-size: 30px;
+	color: #848484;
+	line-height: 60px;
+}
+
+.menu-icon {
+	margin: 0 auto;
+	width: 85px;
+	height: 50px;
+	padding: 7px 0 8px 0;
+	text-align: center;
+}
+
+.menu-icon i:hover {
+	color: gold;
+/* 	-webkit-transform: scale(1.15);
+	-moz-transform: scale(1.15);
+	-ms-transform: scale(1.15);
+	-o-transform: scale(1.15);
+	transform: scale(1.15); */
+}
+
+/* .text {
+	position: absolute;
+	overflow: hidden;
+	margin-left: 17px;
+	z-index: 1;
+	-webkit-reansition: all .5s ease;
+	transition: all .5s ease;
+	bottom: 0px;
+} */
+
+.sub-menu {
+	vertical-align: middle;
+	padding-left: 3px;
+	display: none;
+	background: #D7BCDB;
+	li
+	{
+	border-bottom
+	:
+	1px
+	solid
+	#B6B6B6;
+}
+}
+
+.sub-menu a {
+	display: block;
+	color: white;
+	padding: 5px;
+	transition: all 0.4s ease-out;
+	    /*  hover { background-color : #2ECCFA; */
+}
+
+.menu-icon ul li a {
+	color: white;
+}
+
+.sub-menu a:hover {
+	/* color: #2ECCFA; */
+	font-weight: bold;
+	color: white;
+}
+
+.sub-menu .sm1 {
+	color: white;
+	font-size: 16px;
+	text-align: center;
+	margin-bottom: 0px;
+	padding-top: 10px;
+	padding-right: 10px;
+}
+
+.sub-menu .sm2 {
+	color: white;
+	font-size: 16px;
+	text-align: center;
+	margin-bottom: 0px;
+	padding-top: 10px;
+	padding-right: 10px;
+}
+
+.sub-menu .sm3 {
+	color: white;
+	font-size: 16px;
+	text-align: center;
+	margin-bottom: 0px;
+	padding-top: 10px;
+	padding-right: 3px;
+	padding-left: 3px;
+}
+
+.sub-menu .sm4 {
+	padding-left: 15px;
+}
